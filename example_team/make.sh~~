@@ -1,0 +1,2 @@
+javac -cp atan-0.4.5-SNAPSHOT.jar:log4j-1.2.1.jar *.java
+
