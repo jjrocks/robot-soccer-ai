@@ -1,5 +1,3 @@
-package com.github.robocup_atan.example_team;
-
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.github.robocup_atan.atan.model.ActionsPlayer;

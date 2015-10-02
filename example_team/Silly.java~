@@ -193,6 +193,10 @@ public class Silly implements ControllerPlayer {
 
     /** {@inheritDoc} */
     @Override
+    public void infoHearSelf(String message){}
+
+    /** {@inheritDoc} */
+    @Override
     public void infoPlayerParam(double allowMultDefaultType, double dashPowerRateDeltaMax,
                                 double dashPowerRateDeltaMin, double effortMaxDeltaFactor, double effortMinDeltaFactor,
                                 double extraStaminaDeltaMax, double extraStaminaDeltaMin,

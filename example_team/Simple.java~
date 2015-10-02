@@ -189,7 +189,8 @@ public class Simple implements ControllerPlayer {
                                    double dirChange, double bodyFacingDirection, double headFacingDirection) {}
 
     /** {@inheritDoc} */
-    public void infoHearSelf(String message){};
+    @Override
+    public void infoHearSelf(String message){}
 
     /** {@inheritDoc} */
     @Override
