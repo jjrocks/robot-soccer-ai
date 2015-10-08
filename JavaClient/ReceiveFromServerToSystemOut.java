@@ -28,6 +28,8 @@ public class ReceiveFromServerToSystemOut implements Runnable
 		try
 		{
 			socket.receive(pkt);
+			SendFromSystemInToServer.port = pkt.getPort();
+			System.out.println("Current port: " + SendFromSystemInToServer.port);
 		}
 		catch (IOException e)
 		{
@@ -79,6 +81,7 @@ public class ReceiveFromServerToSystemOut implements Runnable
 		}
 	}
 
+	//TODO(Lucy): Remove this code after test.
 	private void send(String message)
 	{
 		System.out.println("Sending: " + message);

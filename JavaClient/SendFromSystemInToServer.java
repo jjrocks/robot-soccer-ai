@@ -5,6 +5,7 @@ import java.util.*;
 public class SendFromSystemInToServer implements Runnable
 {
 	private DatagramSocket socket;
+	public static int port = 6000;
 	private Scanner scanner = new Scanner(System.in);
 
 	public SendFromSystemInToServer(DatagramSocket inSocket)
@@ -30,7 +31,7 @@ public class SendFromSystemInToServer implements Runnable
 		try
 		{
 			DatagramPacket pkt = new DatagramPacket(buffer, buffer.length, 
-						InetAddress.getByName("compute212.cs.lafayette.edu"), 6000);
+						InetAddress.getByName("compute212.cs.lafayette.edu"), port);
 			
 			try
 			{
