@@ -100,7 +100,7 @@ public class RobocupClient implements Runnable
      */
     private void send(String message)
     {
-        //System.out.println("Sending: " + message);
+        System.out.println("Sending: " + message);
 
         byte[] buffer = message.getBytes(Charset.defaultCharset());
 
