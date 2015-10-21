@@ -21,7 +21,7 @@ public class FullstateInfo
                                                   + " " + REAL_NB_PATTERN + " "
                                                   + REAL_NB_PATTERN + " "
                                                   + REAL_NB_PATTERN + "\\)";
-    final static String PLAYER_PATTERN    = "\\(\\(p ([lr]) ([1-9]{1,2}) ([g[0-9]+])\\) "
+    final static String PLAYER_PATTERN    = "\\(\\(p ([lr]) ([0-9]{1,2}) ([g[0-9]+])\\) "
                                                   + REAL_NB_PATTERN
                                                   + " "
                                                   + REAL_NB_PATTERN
@@ -44,6 +44,7 @@ public class FullstateInfo
     private Ball        ball;         // The ball of the game
     private Player[]    leftTeam;     // Players of left and right team,
     private Player[]    rightTeam;    //  indexed by their uniform number - 1
+    private int MAX_PLAYERS = 12;
 
     /**
      * Constructor.
@@ -54,9 +55,9 @@ public class FullstateInfo
     {
         this.fullstateMsg = fullstateMsg;
         this.ball = new Ball(0, 0, 0, 0);
-        leftTeam = new Player[11];
-        rightTeam = new Player[11];
-        for (int i = 0; i < 11; i++)
+        leftTeam = new Player[MAX_PLAYERS];
+        rightTeam = new Player[MAX_PLAYERS];
+        for (int i = 0; i < MAX_PLAYERS; i++)
         {
             leftTeam[i] = new Player(0, 0, 0, 0, true, '0', 0);
             rightTeam[i] = new Player(0, 0, 0, 0, false, '0', 0);
@@ -156,7 +157,7 @@ public class FullstateInfo
      */
     public void parse()
     {
-        System.out.println("Parsing data: " + fullstateMsg);
+//        System.out.println("Parsing data: " + fullstateMsg);
         // Gather playMode information.
         Pattern pattern = Pattern.compile(PLAYMODE_PATTERN);
         Matcher matcher = pattern.matcher(fullstateMsg);
@@ -214,6 +215,7 @@ public class FullstateInfo
             }
 
             playerNumber = Integer.valueOf(matcher.group(2));
+            System.out.println("Player Number: " + playerNumber);
 
             if (matcher.group(3).compareToIgnoreCase("g") == 0)
             {
@@ -241,12 +243,12 @@ public class FullstateInfo
         fs += "------ " + System.currentTimeMillis() + " ---------\n";
         fs += "ball: " + ball + "\n";
         Player pi;
-        for (int i = 0; i < 11; i++)
+        for (int i = 0; i < MAX_PLAYERS; i++)
         {
             pi = leftTeam[i];
             fs += "Player " + i + " " + pi + "\n";
         }
-        for (int i = 0; i < 11; i++)
+        for (int i = 0; i < MAX_PLAYERS; i++)
         {
             pi = rightTeam[i];
             fs += "Player " + i + " " + pi + "\n";

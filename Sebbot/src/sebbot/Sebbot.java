@@ -12,6 +12,7 @@ import sebbot.ballcapture.PolicyPerformance;
 import sebbot.ballcapture.Qiteration;
 import sebbot.strategy.GoToBallAndShoot;
 import sebbot.strategy.Strategy;
+import sebbot.strategy.UniformCover;
 
 /**
  * @author Sebastien Lentz
@@ -111,10 +112,11 @@ public class Sebbot
 
         RobocupClient client;
         Brain brain;
-        int nbOfPlayers = 5;
+        int numOfPlayers = 12;
 
         String curDir = System.getProperty("user.dir");
         System.out.println("Current sys dir: " + curDir);
+        /*
         DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
         Strategy dpsGoToBall = new GoToBallAndShoot(dps);
         for (int i = 0; i < nbOfPlayers; i++)
@@ -129,16 +131,16 @@ public class Sebbot
             new Thread(client).start();
             new Thread(brain).start();
         }
-
+*/
 //                dps = DirectPolicySearch.load("30_1920_30.zip");
 //                dpsGoto = new DPSGoTo(dps);
-        Qiteration qit = Qiteration.loadQl("Qit_1_1_1_1_50_178_50_0-9_183.zip");
-        GoToBallAndShoot qitGotoBall = new GoToBallAndShoot(qit);
+//        Qiteration qit = Qiteration.loadQl("Qit_1_1_1_1_50_178_50_0-9_183.zip");
+        GoToBallAndShoot qitGotoBall = new GoToBallAndShoot();
         
 //        UniformCover.setGoToBallStrategy(qitGotoBall);
 //        Strategy uniformCover = new UniformCover(5);
-        
-        for (int i = 0; i < nbOfPlayers; i++)
+
+        for (int i = 0; i < numOfPlayers; i++)
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port,
                 "team2");
@@ -150,6 +152,7 @@ public class Sebbot
             new Thread(client).start();
             new Thread(brain).start();
         }
+
     }
 
     public static void dpsComputation()

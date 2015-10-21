@@ -34,7 +34,7 @@ public class Action
     }
 
     /**
-     * @param actionNo
+     * @param actionNb
      */
     public Action(int actionNb)
     {
@@ -122,7 +122,7 @@ public class Action
     }
 
     /**
-     * @param actionNo the actionNo to set
+     * @param actionNb the actionNo to set
      */
     public void setActionNb(int actionNb)
     {
