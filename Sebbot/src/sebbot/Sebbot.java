@@ -6,16 +6,12 @@ package sebbot;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.LinkedList;
 
 import sebbot.ballcapture.DirectPolicySearch;
-import sebbot.ballcapture.HandCodedPolicy;
 import sebbot.ballcapture.PolicyPerformance;
 import sebbot.ballcapture.Qiteration;
-import sebbot.ballcapture.State;
 import sebbot.strategy.GoToBallAndShoot;
 import sebbot.strategy.Strategy;
-import sebbot.strategy.UniformCover;
 
 /**
  * @author Sebastien Lentz
@@ -49,9 +45,9 @@ public class Sebbot
      */
     public static void main(String args[]) throws SocketException, IOException
     {
-        //startAgents(args);
-        dpsComputation();
-        //qitComputation();
+        startAgents(args);
+//        dpsComputation();
+//        qitComputation();
         //performanceTest();
 
 //                DirectPolicySearch dps = DirectPolicySearch.load("DPS_18_1152_100_50.zip");
@@ -66,7 +62,7 @@ public class Sebbot
 
     public static void startAgents(String args[]) throws IOException
     {
-        String hostname = "127.0.0.1";
+        String hostname = "localhost";
         int port = 6000;
         String team = "team1";
         String strategy = "Default";
@@ -117,7 +113,9 @@ public class Sebbot
         Brain brain;
         int nbOfPlayers = 5;
 
-        DirectPolicySearch dps = DirectPolicySearch.load("savedDPS.zip");
+        String curDir = System.getProperty("user.dir");
+        System.out.println("Current sys dir: " + curDir);
+        DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
         Strategy dpsGoToBall = new GoToBallAndShoot(dps);
         for (int i = 0; i < nbOfPlayers; i++)
         {
@@ -132,9 +130,9 @@ public class Sebbot
             new Thread(brain).start();
         }
 
-        //        dps = DirectPolicySearch.load("30_1920_30.zip");
-        //        dpsGoto = new DPSGoTo(dps);
-        Qiteration qit = Qiteration.loadQl("Qit_4_8_1_1_20_200_20_0-9_197.zip");
+//                dps = DirectPolicySearch.load("30_1920_30.zip");
+//                dpsGoto = new DPSGoTo(dps);
+        Qiteration qit = Qiteration.loadQl("Qit_1_1_1_1_50_178_50_0-9_183.zip");
         GoToBallAndShoot qitGotoBall = new GoToBallAndShoot(qit);
         
 //        UniformCover.setGoToBallStrategy(qitGotoBall);

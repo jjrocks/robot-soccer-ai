@@ -156,6 +156,7 @@ public class FullstateInfo
      */
     public void parse()
     {
+        System.out.println("Parsing data: " + fullstateMsg);
         // Gather playMode information.
         Pattern pattern = Pattern.compile(PLAYMODE_PATTERN);
         Matcher matcher = pattern.matcher(fullstateMsg);

@@ -33,7 +33,7 @@ public class Brain implements Runnable
      * Constructor.
      * 
      * @param robocupClient
-     * @param teamSide
+     * @param leftSide
      * @param playerNumber
      * @param strategy
      */
@@ -150,7 +150,6 @@ public class Brain implements Runnable
     {
         // Before kick off, position the player somewhere in his side.
         robocupClient.move(-Math.random() * 52.5, Math.random() * 34.0);
-        
         int lastTimeStep = 0;
         int currentTimeStep = 0;
         while (true) // TODO: change according to the play mode.
@@ -169,9 +168,9 @@ public class Brain implements Runnable
                     actionsQueue.removeFirst().execute();
                 }
                 
-//                System.out.println(fullstateInfo.getTimeStep() + ": " + player + " " + fullstateInfo.getBall());
-//                System.out.println("Next position: " + player.nextPosition(100.0d));
-//                System.out.println("Next velocity: " + player.nextVelocity(100.0d));
+                System.out.println(fullstateInfo.getTimeStep() + ": " + player + " " + fullstateInfo.getBall());
+                System.out.println("Next position: " + player.nextPosition(100.0d));
+                System.out.println("Next velocity: " + player.nextVelocity(100.0d));
 
             }
             else if (currentTimeStep != lastTimeStep)
@@ -180,7 +179,6 @@ public class Brain implements Runnable
                 System.out.println("Last time step: " + lastTimeStep);
                 System.out.println("Current time step: " + currentTimeStep);
             }
-            
             // Wait for next cycle before sending another command.
             try
             {
