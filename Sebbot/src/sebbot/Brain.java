@@ -136,6 +136,8 @@ public class Brain implements Runnable
         this.fullstateInfo = fullstateInfo;
     }
 
+
+
     /*
      * =========================================================================
      * 

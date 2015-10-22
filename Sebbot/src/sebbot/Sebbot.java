@@ -11,6 +11,7 @@ import sebbot.ballcapture.DirectPolicySearch;
 import sebbot.ballcapture.PolicyPerformance;
 import sebbot.ballcapture.Qiteration;
 import sebbot.strategy.GoToBallAndShoot;
+import sebbot.strategy.GoalieStrategy;
 import sebbot.strategy.Strategy;
 import sebbot.strategy.UniformCover;
 
@@ -112,7 +113,7 @@ public class Sebbot
 
         RobocupClient client;
         Brain brain;
-        int numOfPlayers = 12;
+        int numOfPlayers = 10;
 
         String curDir = System.getProperty("user.dir");
         System.out.println("Current sys dir: " + curDir);
@@ -152,6 +153,18 @@ public class Sebbot
             new Thread(client).start();
             new Thread(brain).start();
         }
+
+        client = new RobocupClient(InetAddress.getByName(hostname), port,
+                "team2");
+        client.init("");
+
+        brain = client.getBrain();
+        brain.setStrategy(new GoalieStrategy());
+
+        new Thread(client).start();
+        new Thread(brain).start();
+
+
 
     }
 

@@ -59,8 +59,8 @@ public class FullstateInfo
         rightTeam = new Player[MAX_PLAYERS];
         for (int i = 0; i < MAX_PLAYERS; i++)
         {
-            leftTeam[i] = new Player(0, 0, 0, 0, true, '0', 0);
-            rightTeam[i] = new Player(0, 0, 0, 0, false, '0', 0);
+            leftTeam[i] = new Player(0, 0, 0, 0, true, '0', 0, i);
+            rightTeam[i] = new Player(0, 0, 0, 0, false, '0', 0, i);
         }
     }
 
@@ -215,7 +215,7 @@ public class FullstateInfo
             }
 
             playerNumber = Integer.valueOf(matcher.group(2));
-            System.out.println("Player Number: " + playerNumber);
+//            System.out.println("Player Number: " + playerNumber);
 
             if (matcher.group(3).compareToIgnoreCase("g") == 0)
             {

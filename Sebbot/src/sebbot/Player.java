@@ -15,6 +15,7 @@ public class Player extends MobileObject
     private int     playerType;
     private int     uniformNumber;
     private double  bodyDirection;
+    private int playerNumber;
 
     /*
      * =========================================================================
@@ -35,12 +36,13 @@ public class Player extends MobileObject
      * @param bodyDirection
      */
     public Player(double posX, double posY, double velX, double velY,
-            boolean team, int playerType, double bodyDirection)
+            boolean team, int playerType, double bodyDirection, int playerNumber)
     {
         super(posX, posY, velX, velY);
         this.leftSide = team;
         this.playerType = playerType;
         this.bodyDirection = bodyDirection;
+        this.playerNumber = playerNumber;
     }
 
     /*
@@ -75,7 +77,7 @@ public class Player extends MobileObject
     }
 
     /**
-     * @param leftSideTeam the leftSideTeam to set
+     * @param leftSide the leftSideTeam to set
      */
     public void setLeftSide(boolean leftSide)
     {
@@ -112,6 +114,10 @@ public class Player extends MobileObject
     public void setUniformNumber(int uniformNumber)
     {
         this.uniformNumber = uniformNumber;
+    }
+
+    public int getPlayerNumber() {
+        return playerNumber;
     }
 
     /*
