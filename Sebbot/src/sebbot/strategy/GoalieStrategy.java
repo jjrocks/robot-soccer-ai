@@ -13,5 +13,8 @@ public class GoalieStrategy implements Strategy {
         if(player.getUniformNumber() == 10) {
             System.out.println("I am player 10");
         }
+        else {
+            System.out.println("This isn't working :c");
+        }
     }
 }

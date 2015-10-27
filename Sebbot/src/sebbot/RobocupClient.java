@@ -216,7 +216,7 @@ public class RobocupClient implements Runnable
      * 
      * @throws IOException if the init message could not be parsed.
      */
-    protected void init(String strategy) throws IOException
+    protected void init(Strategy strategy) throws IOException
     {
         byte[] buffer = new byte[MSG_SIZE];
         DatagramPacket packet = new DatagramPacket(buffer, MSG_SIZE);
@@ -238,7 +238,7 @@ public class RobocupClient implements Runnable
             int playerNumber = Integer.valueOf(matcher.group(2));
 
             brain = new Brain(this, leftTeam, playerNumber,
-                stringToStrategy(strategy));
+                strategy);
             brain.getFullstateInfo().setPlayMode(matcher.group(3));
         }
         else

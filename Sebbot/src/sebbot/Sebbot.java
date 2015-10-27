@@ -113,7 +113,7 @@ public class Sebbot
 
         RobocupClient client;
         Brain brain;
-        int numOfPlayers = 10;
+        int numOfPlayers = 9;
 
         String curDir = System.getProperty("user.dir");
         System.out.println("Current sys dir: " + curDir);
@@ -145,7 +145,7 @@ public class Sebbot
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port,
                 "team2");
-            client.init("");
+            client.init(qitGotoBall);
 
             brain = client.getBrain();
             brain.setStrategy(qitGotoBall);
@@ -156,7 +156,7 @@ public class Sebbot
 
         client = new RobocupClient(InetAddress.getByName(hostname), port,
                 "team2");
-        client.init("");
+        client.init(new GoalieStrategy());
 
         brain = client.getBrain();
         brain.setStrategy(new GoalieStrategy());
