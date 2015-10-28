@@ -39,7 +39,7 @@ public class GoalieStrategy implements Strategy {
     /**
      * 
      */
-    public GoalieStrategy()
+    public GoToBallAndShoot()
     {
         this(new sebbot.ballcapture.HandCodedPolicy());
     }
