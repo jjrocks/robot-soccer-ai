@@ -154,6 +154,7 @@ public class Sebbot
             new Thread(brain).start();
         }
 
+        // Player 10  comes in with their extra strategy
         client = new RobocupClient(InetAddress.getByName(hostname), port,
                 "team2");
         client.init(new GoalieStrategy());
@@ -167,6 +168,9 @@ public class Sebbot
 
 
     }
+
+    // Useless Strategies Here just for the knowledge the exist
+
 
     public static void dpsComputation()
     {

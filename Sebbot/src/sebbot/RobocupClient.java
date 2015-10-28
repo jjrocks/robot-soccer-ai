@@ -234,7 +234,7 @@ public class RobocupClient implements Runnable
 
         if (matcher.find())
         {
-            boolean leftTeam = matcher.group(1).charAt(0) == 'l' ? true : false;
+            boolean leftTeam = matcher.group(1).charAt(0) == 'l';
             int playerNumber = Integer.valueOf(matcher.group(2));
 
             brain = new Brain(this, leftTeam, playerNumber,
@@ -248,9 +248,21 @@ public class RobocupClient implements Runnable
 
     }
 
+    /** 
+     * This methods will just keep waiting for server messages
+     * to arrive on the socket then parse them.
+     */
+    public void run()
+    {
+        while (true)
+        {
+            parseServerMsg(receive());
+        }
+    }
+
     /**
      * Creates a strategy object based on its name.
-     * 
+     *
      * @param s the name of the strategy.
      * @return the created strategy.
      */
@@ -281,17 +293,4 @@ public class RobocupClient implements Runnable
 
         return s1;
     }
-
-    /** 
-     * This methods will just keep waiting for server messages
-     * to arrive on the socket then parse them.
-     */
-    public void run()
-    {
-        while (true)
-        {
-            parseServerMsg(receive());
-        }
-    }
-
 }

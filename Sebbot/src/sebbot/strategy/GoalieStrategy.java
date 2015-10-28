@@ -10,11 +10,12 @@ import sebbot.RobocupClient;
 public class GoalieStrategy implements Strategy {
     @Override
     public void doAction(RobocupClient rcClient, FullstateInfo fsi, Player player) {
-        if(player.getUniformNumber() == 10) {
-            System.out.println("I am player 10");
-        }
-        else {
-            System.out.println("This isn't working :c");
-        }
+        System.out.println("This is player: " + player.getUniformNumber());
+    }
+
+
+
+    public void moveUpYAxis(Player player) {
+        // The only thing this should do is move up the y axis
     }
 }

@@ -3,9 +3,11 @@ package sebbot;
 /**
  * @author Sebastien Lentz
  *
+ * It seems that vector2D will try to get the coodrdinates of each class
  */
 public class Vector2D implements Cloneable
 {
+    // The actuall positions within the field
     private double x;
     private double y;
 
@@ -78,6 +80,7 @@ public class Vector2D implements Cloneable
         this.y = y;
     }
 
+    // Literally subtracting to separate vectors
     public Vector2D subtract(Vector2D v) throws NullVectorException
     {
         if (v == null)
@@ -88,6 +91,9 @@ public class Vector2D implements Cloneable
         return new Vector2D(x - v.getX(), y - v.getY());
     }
 
+    /**
+     * Literally adding two vectors via an x y coordinates
+     */
     public Vector2D add(Vector2D v) throws NullVectorException
     {
         if (v == null)
@@ -98,6 +104,11 @@ public class Vector2D implements Cloneable
         return new Vector2D(x + v.getX(), y + v.getY());
     }
 
+    /**
+     * Literally mutpliying the coordinates by the f
+     * @param f
+     * @return
+     */
     public Vector2D multiply(double f)
     {
         return new Vector2D(x * f, y * f);
@@ -113,6 +124,10 @@ public class Vector2D implements Cloneable
         return x * v.getX() + y * v.getY();
     }
 
+    /**
+     * A better way of thinking about this is literally a quadrilateral where the origin is 0,0
+     * @return It will return the radius form the point of 0,0
+     */
     public double polarRadius()
     {
         return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
@@ -134,6 +149,7 @@ public class Vector2D implements Cloneable
 
     }
 
+    //TODO: Figure out what normalize means.
     public Vector2D normalize(double modulusMax)
     {
         double currentModulus = polarRadius();
@@ -151,6 +167,10 @@ public class Vector2D implements Cloneable
         return (new Vector2D(x, y)).subtract(this).polarRadius();
     }
 
+    /**
+     * Think about it as the distance between two points.
+     * @return Returns the distance via coordinates.
+     */
     public double distanceTo(Vector2D v) throws NullVectorException
     {
         if (v == null)
@@ -171,6 +191,9 @@ public class Vector2D implements Cloneable
         return distanceTo(o.getPosition());
     }
 
+    /**
+     * Literally will give the angle compared to something else.
+     */
     public double directionOf(double x, double y)
     {
         return (new Vector2D(x, y)).subtract(this).polarAngle();
