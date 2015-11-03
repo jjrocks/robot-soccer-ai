@@ -14,8 +14,8 @@ import sebbot.PlayerAction;
  * Modified by Bret 10/28/2015.
  */
 public class GoalieStrategy implements Strategy {
-	private int goalieRange = 5;
-	private Vector2D goalPos = new Vector2D(0,16/2); // hard coded to the left team
+	private int goalieRange = 15;
+	private int maxDistanceToGoal = 25;
 	private sebbot.ballcapture.Policy ballCaptureAlgorithm;
     
 
@@ -54,25 +54,28 @@ public class GoalieStrategy implements Strategy {
 
     @Override
     public void doAction(RobocupClient rcClient, FullstateInfo fsi, Player player) {
-	// kick the ball if it is in range
-		// ball is NOT in range, try different strategy (taken from GoToBallAndShoot)
-		// check distance
-		if (player.distanceTo(fsi.getBall()) <= goalieRange){
-			// if ball is close to player, move towards it and kick (code taken from GoToBallAndShoot)
-			if (!CommonStrategies.shootToGoal(rcClient, fsi, player))
-			{
-				State state = new State(fsi, player);
-				Action action = ballCaptureAlgorithm.chooseAction(state);
+	// save goal position
+	Vector2D goalPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d,0);
 
-				rcClient.getBrain().getActionsQueue().addLast(
-				    new PlayerAction(action, rcClient));
-			}
-		} else {
-			// if ball is far from player, move to goal
-			CommonStrategies.simpleGoTo(goalPos, rcClient, fsi, player);
+	// kick the ball if it is in range
+	// ball is NOT in range, try different strategy (taken from GoToBallAndShoot)
+	// check distance
+	if (player.distanceTo(fsi.getBall()) <= goalieRange && player.distanceTo(goalPos) <= maxDistanceToGoal){
+		// if ball is close to player, move towards it and kick (code taken from GoToBallAndShoot)
+		if (!CommonStrategies.shootToGoal(rcClient, fsi, player))
+		{
+			State state = new State(fsi, player);
+			Action action = ballCaptureAlgorithm.chooseAction(state);
+
+			rcClient.getBrain().getActionsQueue().addLast(
+			    new PlayerAction(action, rcClient));
 		}
-	
-		// yell out the player number
+	} else {
+		// if ball is far from player, move to goal
+		CommonStrategies.simpleGoTo(goalPos, rcClient, fsi, player);
+	}
+
+	// yell out the player number
         if(player.getUniformNumber() == 10) {
             System.out.println("I am player 10");
         }

@@ -113,26 +113,38 @@ public class Sebbot
 
         RobocupClient client;
         Brain brain;
-        int numOfPlayers = 9;
+        int numOfPlayers = 11;
 
         String curDir = System.getProperty("user.dir");
         System.out.println("Current sys dir: " + curDir);
-        /*
-        DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
-        Strategy dpsGoToBall = new GoToBallAndShoot(dps);
-        for (int i = 0; i < nbOfPlayers; i++)
+        
+        //DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
+        //Strategy dpsGoToBall = new GoToBallAndShoot(dps);
+
+	GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
+        for (int i = 0; i < numOfPlayers-2; i++)
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port,
                 team);
-            client.init("");
+            client.init(qitGotoBall1);
 
             brain = client.getBrain();
-            brain.setStrategy(dpsGoToBall);
+            brain.setStrategy(qitGotoBall1);
 
             new Thread(client).start();
             new Thread(brain).start();
         }
-*/
+
+	client = new RobocupClient(InetAddress.getByName(hostname), port,
+                team);
+        client.init(new GoalieStrategy());
+
+        brain = client.getBrain();
+        brain.setStrategy(new GoalieStrategy());
+
+        new Thread(client).start();
+        new Thread(brain).start();
+
 //                dps = DirectPolicySearch.load("30_1920_30.zip");
 //                dpsGoto = new DPSGoTo(dps);
 //        Qiteration qit = Qiteration.loadQl("Qit_1_1_1_1_50_178_50_0-9_183.zip");
@@ -141,7 +153,7 @@ public class Sebbot
 //        UniformCover.setGoToBallStrategy(qitGotoBall);
 //        Strategy uniformCover = new UniformCover(5);
 
-        for (int i = 0; i < numOfPlayers; i++)
+        for (int i = 0; i < numOfPlayers-2; i++)
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port,
                 "team2");
@@ -221,8 +233,8 @@ public class Sebbot
     public static void performanceTest()
     {
         //DirectPolicySearch dps = DirectPolicySearch.load("DPS_30_2880_100_50.zip");        
-        Qiteration qit = Qiteration.loadQl("Qit_4_8_1_1_20_200_20_0-9_197.zip");
+        //Qiteration qit = Qiteration.loadQl("Qit_4_8_1_1_20_200_20_0-9_197.zip");
         //PolicyPerformance.testAllDps();
-        PolicyPerformance.logPerformances(qit, false);
+        //PolicyPerformance.logPerformances(qit, false);
     }
 }
