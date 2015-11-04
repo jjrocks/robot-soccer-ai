@@ -10,12 +10,12 @@ import sebbot.PlayerAction;
 
 
 /**
- * Created by JJ on 10/22/2015.
- * Modified by Bret 10/28/2015 and 11/3/2015
+ * Created by Bret Black 11/3/2015
  */
-public class GoalieStrategy implements Strategy {
-	private int goalieRange = 15;
-	private int maxDistanceToGoal = 25;
+public class DefensiveStrategy implements Strategy {
+	private int range = 30;
+	private int maxDistanceToEnd = 25;
+	private Vector2D startPos = new Vector2D(0,0); // home place
 	private sebbot.ballcapture.Policy ballCaptureAlgorithm;
     
 
@@ -31,7 +31,7 @@ public class GoalieStrategy implements Strategy {
 	/**
      * @param ballCaptureAlgorithm
      */
-    public GoalieStrategy(sebbot.ballcapture.Policy ballCaptureAlgorithm)
+    public DefensiveStrategy(sebbot.ballcapture.Policy ballCaptureAlgorithm)
     {
         this.ballCaptureAlgorithm = ballCaptureAlgorithm;
     }
@@ -39,7 +39,7 @@ public class GoalieStrategy implements Strategy {
     /**
      * 
      */
-    public GoalieStrategy()
+    public DefensiveStrategy()
     {
         this(new sebbot.ballcapture.HandCodedPolicy());
     }
@@ -54,13 +54,13 @@ public class GoalieStrategy implements Strategy {
 
     @Override
     public void doAction(RobocupClient rcClient, FullstateInfo fsi, Player player) {
-	// save goal position
-	Vector2D goalPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d,0);
+	// save goal position to track if we are too far
+	Vector2D endPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d,player.getPosition().getY());
 
 	// kick the ball if it is in range
 	// ball is NOT in range, try different strategy (taken from GoToBallAndShoot)
 	// check distance
-	if (player.distanceTo(fsi.getBall()) <= goalieRange && player.distanceTo(goalPos) <= maxDistanceToGoal){
+	if (player.distanceTo(fsi.getBall()) <= range && player.distanceTo(endPos) <= maxDistanceToEnd){
 		// if ball is close to player, move towards it and kick (code taken from GoToBallAndShoot)
 		if (!CommonStrategies.shootToGoal(rcClient, fsi, player))
 		{
@@ -72,7 +72,7 @@ public class GoalieStrategy implements Strategy {
 		}
 	} else {
 		// if ball is far from player, move to goal
-		CommonStrategies.simpleGoTo(goalPos, rcClient, fsi, player);
+		CommonStrategies.simpleGoTo(startPos, rcClient, fsi, player);
 	}
 
 	// yell out the player number

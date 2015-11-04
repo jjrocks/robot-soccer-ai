@@ -111,49 +111,30 @@ public class Sebbot
             return;
         }
 
-        RobocupClient client;
-        Brain brain;
-        int numOfPlayers = 11;
+        
+        int numOfPlayers = 10; // because 11 is bugged
 
         String curDir = System.getProperty("user.dir");
         System.out.println("Current sys dir: " + curDir);
         
+        // create teams
+        createTeam(numOfPlayers, hostname, port, team);
+        createTeam(numOfPlayers,hostname, port, "team2");
+        
         //DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
         //Strategy dpsGoToBall = new GoToBallAndShoot(dps);
 
-	GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
-        for (int i = 0; i < numOfPlayers-2; i++)
-        {
-            client = new RobocupClient(InetAddress.getByName(hostname), port,
-                team);
-            client.init(qitGotoBall1);
-
-            brain = client.getBrain();
-            brain.setStrategy(qitGotoBall1);
-
-            new Thread(client).start();
-            new Thread(brain).start();
-        }
-
-	client = new RobocupClient(InetAddress.getByName(hostname), port,
-                team);
-        client.init(new GoalieStrategy());
-
-        brain = client.getBrain();
-        brain.setStrategy(new GoalieStrategy());
-
-        new Thread(client).start();
-        new Thread(brain).start();
+        
 
 //                dps = DirectPolicySearch.load("30_1920_30.zip");
 //                dpsGoto = new DPSGoTo(dps);
 //        Qiteration qit = Qiteration.loadQl("Qit_1_1_1_1_50_178_50_0-9_183.zip");
-        GoToBallAndShoot qitGotoBall = new GoToBallAndShoot();
+        //GoToBallAndShoot qitGotoBall = new GoToBallAndShoot();
         
 //        UniformCover.setGoToBallStrategy(qitGotoBall);
 //        Strategy uniformCover = new UniformCover(5);
 
-        for (int i = 0; i < numOfPlayers-2; i++)
+        /*for (int i = 0; i < numOfPlayers-2; i++)
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port,
                 "team2");
@@ -174,7 +155,7 @@ public class Sebbot
         brain.setStrategy(new GoalieStrategy());
 
         new Thread(client).start();
-        new Thread(brain).start();
+        new Thread(brain).start();*/
 
 
 
@@ -236,5 +217,40 @@ public class Sebbot
         //Qiteration qit = Qiteration.loadQl("Qit_4_8_1_1_20_200_20_0-9_197.zip");
         //PolicyPerformance.testAllDps();
         //PolicyPerformance.logPerformances(qit, false);
+    }
+    
+    /** Creates a team
+     * 
+     * @param numOfPlayers Number of players on the team
+     * @param hostname Host address
+     * @param port Port number
+     * @param teamName Team size
+     */
+    public static void createTeam(int numOfPlayers, String hostname, int port, String teamName) throws IOException{
+    	RobocupClient client;
+        Brain brain;
+    	GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
+        for (int i = 0; i < numOfPlayers-1; i++)
+        {
+            client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);
+            client.init(qitGotoBall1);
+
+            brain = client.getBrain();
+            brain.setStrategy(qitGotoBall1);
+
+            new Thread(client).start();
+            new Thread(brain).start();
+        }
+
+        client = new RobocupClient(InetAddress.getByName(hostname), port,
+                teamName);
+        client.init(new GoalieStrategy());
+
+        brain = client.getBrain();
+        brain.setStrategy(new GoalieStrategy());
+
+        new Thread(client).start();
+        new Thread(brain).start();
+    	
     }
 }
