@@ -11,6 +11,7 @@ import sebbot.ballcapture.DirectPolicySearch;
 import sebbot.ballcapture.PolicyPerformance;
 import sebbot.ballcapture.Qiteration;
 import sebbot.strategy.GoToBallAndShoot;
+import sebbot.strategy.DefensiveStrategy;
 import sebbot.strategy.GoalieStrategy;
 import sebbot.strategy.Strategy;
 import sebbot.strategy.UniformCover;
@@ -229,8 +230,10 @@ public class Sebbot
     public static void createTeam(int numOfPlayers, String hostname, int port, String teamName) throws IOException{
     	RobocupClient client;
         Brain brain;
+        
+        // main offensive loop
     	GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
-        for (int i = 0; i < numOfPlayers-1; i++)
+        for (int i = 0; i < numOfPlayers-5; i++)
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);
             client.init(qitGotoBall1);
@@ -241,13 +244,29 @@ public class Sebbot
             new Thread(client).start();
             new Thread(brain).start();
         }
+        
+        // defensive loop
+        DefensiveStrategy defensiveStrategy = new DefensiveStrategy();
+        for (int i = 0; i < 4; i++)
+        {
+            client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);
+            client.init(defensiveStrategy);
 
+            brain = client.getBrain();
+            brain.setStrategy(defensiveStrategy);
+
+            new Thread(client).start();
+            new Thread(brain).start();
+        }
+        
+        // goalie
+        GoalieStrategy goalieStrategy = new GoalieStrategy();
         client = new RobocupClient(InetAddress.getByName(hostname), port,
                 teamName);
-        client.init(new GoalieStrategy());
+        client.init(goalieStrategy);
 
         brain = client.getBrain();
-        brain.setStrategy(new GoalieStrategy());
+        brain.setStrategy(goalieStrategy);
 
         new Thread(client).start();
         new Thread(brain).start();

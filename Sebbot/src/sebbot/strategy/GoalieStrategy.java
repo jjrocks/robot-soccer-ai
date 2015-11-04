@@ -15,7 +15,7 @@ import sebbot.PlayerAction;
  */
 public class GoalieStrategy implements Strategy {
 	private int goalieRange = 15;
-	private int maxDistanceToGoal = 25;
+	private int maxDistanceToGoal = 10;
 	private sebbot.ballcapture.Policy ballCaptureAlgorithm;
     
 
