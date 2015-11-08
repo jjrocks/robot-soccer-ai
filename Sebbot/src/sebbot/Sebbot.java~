@@ -11,7 +11,6 @@ import sebbot.ballcapture.DirectPolicySearch;
 import sebbot.ballcapture.PolicyPerformance;
 import sebbot.ballcapture.Qiteration;
 import sebbot.strategy.GoToBallAndShoot;
-import sebbot.strategy.GoalieStrategy;
 import sebbot.strategy.Strategy;
 import sebbot.strategy.UniformCover;
 
@@ -117,34 +116,22 @@ public class Sebbot
 
         String curDir = System.getProperty("user.dir");
         System.out.println("Current sys dir: " + curDir);
-        
-        //DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
-        //Strategy dpsGoToBall = new GoToBallAndShoot(dps);
-
-	GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
-        for (int i = 0; i < numOfPlayers-2; i++)
+        /*
+        DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
+        Strategy dpsGoToBall = new GoToBallAndShoot(dps);
+        for (int i = 0; i < nbOfPlayers; i++)
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port,
                 team);
-            client.init(qitGotoBall1);
+            client.init("");
 
             brain = client.getBrain();
-            brain.setStrategy(qitGotoBall1);
+            brain.setStrategy(dpsGoToBall);
 
             new Thread(client).start();
             new Thread(brain).start();
         }
-
-	client = new RobocupClient(InetAddress.getByName(hostname), port,
-                team);
-        client.init(new GoalieStrategy());
-
-        brain = client.getBrain();
-        brain.setStrategy(new GoalieStrategy());
-
-        new Thread(client).start();
-        new Thread(brain).start();
-
+*/
 //                dps = DirectPolicySearch.load("30_1920_30.zip");
 //                dpsGoto = new DPSGoTo(dps);
 //        Qiteration qit = Qiteration.loadQl("Qit_1_1_1_1_50_178_50_0-9_183.zip");
@@ -153,11 +140,11 @@ public class Sebbot
 //        UniformCover.setGoToBallStrategy(qitGotoBall);
 //        Strategy uniformCover = new UniformCover(5);
 
-        for (int i = 0; i < numOfPlayers-2; i++)
+        for (int i = 0; i < numOfPlayers; i++)
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port,
                 "team2");
-            client.init(qitGotoBall);
+            client.init("");
 
             brain = client.getBrain();
             brain.setStrategy(qitGotoBall);
@@ -166,23 +153,7 @@ public class Sebbot
             new Thread(brain).start();
         }
 
-        // Player 10  comes in with their extra strategy
-        client = new RobocupClient(InetAddress.getByName(hostname), port,
-                "team2");
-        client.init(new GoalieStrategy());
-
-        brain = client.getBrain();
-        brain.setStrategy(new GoalieStrategy());
-
-        new Thread(client).start();
-        new Thread(brain).start();
-
-
-
     }
-
-    // Useless Strategies Here just for the knowledge the exist
-
 
     public static void dpsComputation()
     {
@@ -237,8 +208,8 @@ public class Sebbot
     public static void performanceTest()
     {
         //DirectPolicySearch dps = DirectPolicySearch.load("DPS_30_2880_100_50.zip");        
-        //Qiteration qit = Qiteration.loadQl("Qit_4_8_1_1_20_200_20_0-9_197.zip");
+        Qiteration qit = Qiteration.loadQl("Qit_4_8_1_1_20_200_20_0-9_197.zip");
         //PolicyPerformance.testAllDps();
-        //PolicyPerformance.logPerformances(qit, false);
+        PolicyPerformance.logPerformances(qit, false);
     }
 }
