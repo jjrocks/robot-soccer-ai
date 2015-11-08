@@ -15,6 +15,8 @@ public class FullstateInfo
     /*
      * Constants of the class.
      */
+    final static String SERVER_PARAM_PATTERN = "\\(server_param (\\(.*\\))*\\)";
+    final static String PLAYER_PARAM_PATTERN = "\\(player_param (\\(.*\\))*\\)";
     final static String PLAYMODE_PATTERN  = "\\(pmode ([a-zA-Z_]*)\\)";
     final static String REAL_NB_PATTERN   = "((?:\\-)?[0-9]+(?:\\.[0-9]+(?:e(?:\\-)?[0-9]+)?)?)";
     final static String BALL_PATTERN      = "\\(\\(b\\) " + REAL_NB_PATTERN
@@ -45,6 +47,7 @@ public class FullstateInfo
     private Player[]    leftTeam;     // Players of left and right team,
     private Player[]    rightTeam;    //  indexed by their uniform number - 1
     private int MAX_PLAYERS = 12;
+    private boolean printedError = false;
 
     /**
      * Constructor.
@@ -159,16 +162,47 @@ public class FullstateInfo
     {
 //        System.out.println("Parsing data: " + fullstateMsg);
         // Gather playMode information.
-        Pattern pattern = Pattern.compile(PLAYMODE_PATTERN);
+        boolean skipStuff = false;
+        Pattern pattern = Pattern.compile(SERVER_PARAM_PATTERN);
         Matcher matcher = pattern.matcher(fullstateMsg);
+        if(matcher.find() && !skipStuff)
+        {
+            System.out.println("I found a server parameter");
+            skipStuff = true;
+        }
+        else
+        {
+//            printErrorMessage("Server Mode");
+        }
+
+        pattern = Pattern.compile(PLAYER_PARAM_PATTERN);
+        matcher = pattern.matcher(fullstateMsg);
+        if(matcher.find())
+        {
+            System.out.println("I also found a player parameter");
+            skipStuff = true;
+        }
+        else
+        {
+            if(!skipStuff)
+            {
+//                printErrorMessage("Player Param");
+            }
+        }
+
+
+        pattern = Pattern.compile(PLAYMODE_PATTERN);
+        matcher = pattern.matcher(fullstateMsg);
         if (matcher.find())
         {
+            System.out.println("Found the successful parsed data");
             this.playMode = matcher.group(1);
         }
         else
         {
-            System.err.println("Could not parse play mode info: "
-                    + fullstateMsg);
+            if (!skipStuff) {
+                printErrorMessage("Play Mode");
+            }
         }
 
         // Gather ball information.
@@ -183,7 +217,7 @@ public class FullstateInfo
         }
         else
         {
-            System.err.println("Could not parse ball info: " + fullstateMsg);
+//            System.err.println("Could not parse ball info: " + fullstateMsg);
         }
 
         // Get time step.
@@ -195,7 +229,7 @@ public class FullstateInfo
         }
         else
         {
-            System.err.println("Could not parse time step: " + fullstateMsg);
+//            System.err.println("Could not parse time step: " + fullstateMsg);
         }
 
         // Gather players information.
@@ -234,6 +268,14 @@ public class FullstateInfo
             team[playerNumber - 1].getVelocity().setY(Double.valueOf(matcher.group(7)));
             team[playerNumber - 1].setBodyDirection(Double.valueOf(matcher
                     .group(8)));
+        }
+    }
+
+    public void printErrorMessage(String mode)
+    {
+        if (!printedError) {
+            System.err.println("Could not parse " + mode + " info: \n" + fullstateMsg);
+            printedError = true;
         }
     }
     

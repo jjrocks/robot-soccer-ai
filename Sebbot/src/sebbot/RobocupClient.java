@@ -190,15 +190,8 @@ public class RobocupClient implements Runnable
     private void parseServerMsg(String message)
     {
         // Check the kind of information first
-        if (message.charAt(1) == 'f')
-        { // Fullstate information
-            brain.getFullstateInfo().setFullstateMsg(message);
-            brain.getFullstateInfo().parse();
-        }
-
-        else if (message.charAt(1) == 'e')
-            System.out.println(message);
-
+        brain.getFullstateInfo().setFullstateMsg(message);
+        brain.getFullstateInfo().parse();
     }
 
     /**
@@ -231,7 +224,6 @@ public class RobocupClient implements Runnable
 
         Pattern pattern = Pattern.compile(initPattern);
         Matcher matcher = pattern.matcher(initMsg);
-
         if (matcher.find())
         {
             boolean leftTeam = matcher.group(1).charAt(0) == 'l';
