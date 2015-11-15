@@ -113,7 +113,7 @@ public class Sebbot
 
         RobocupClient client;
         Brain brain;
-        int numOfPlayers = 11;
+        int numOfPlayers = 3;
 
         String curDir = System.getProperty("user.dir");
         System.out.println("Current sys dir: " + curDir);
@@ -135,6 +135,7 @@ public class Sebbot
             new Thread(brain).start();
         }
 
+        /*
 	client = new RobocupClient(InetAddress.getByName(hostname), port,
                 team);
         client.init(new GoalieStrategy());
@@ -144,7 +145,7 @@ public class Sebbot
 
         new Thread(client).start();
         new Thread(brain).start();
-
+        */
 //                dps = DirectPolicySearch.load("30_1920_30.zip");
 //                dpsGoto = new DPSGoTo(dps);
 //        Qiteration qit = Qiteration.loadQl("Qit_1_1_1_1_50_178_50_0-9_183.zip");
@@ -152,7 +153,7 @@ public class Sebbot
         
 //        UniformCover.setGoToBallStrategy(qitGotoBall);
 //        Strategy uniformCover = new UniformCover(5);
-
+/*
         for (int i = 0; i < numOfPlayers-2; i++)
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port,
@@ -165,8 +166,9 @@ public class Sebbot
             new Thread(client).start();
             new Thread(brain).start();
         }
-
+*/
         // Player 10  comes in with their extra strategy
+        /*
         client = new RobocupClient(InetAddress.getByName(hostname), port,
                 "team2");
         client.init(new GoalieStrategy());
@@ -176,7 +178,7 @@ public class Sebbot
 
         new Thread(client).start();
         new Thread(brain).start();
-
+        */
 
 
     }

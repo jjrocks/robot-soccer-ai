@@ -16,6 +16,7 @@ public class Player extends MobileObject
     private int     uniformNumber;
     private double  bodyDirection;
     private int playerNumber;
+    private boolean knowLocation = false;
 
     /*
      * =========================================================================
