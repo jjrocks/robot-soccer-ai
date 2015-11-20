@@ -11,8 +11,6 @@ import sebbot.ballcapture.DirectPolicySearch;
 import sebbot.ballcapture.PolicyPerformance;
 import sebbot.ballcapture.Qiteration;
 import sebbot.strategy.GoToBallAndShoot;
-import sebbot.strategy.DefensiveStrategy;
-import sebbot.strategy.GoalieStrategy;
 import sebbot.strategy.Strategy;
 import sebbot.strategy.UniformCover;
 
@@ -112,34 +110,41 @@ public class Sebbot
             return;
         }
 
-        
-        int numOfPlayers = 10; // because 11 is bugged
+        RobocupClient client;
+        Brain brain;
+        int numOfPlayers = 11;
 
         String curDir = System.getProperty("user.dir");
         System.out.println("Current sys dir: " + curDir);
-        
-        // create teams
-        createTeam(numOfPlayers, hostname, port, team);
-        createTeam(numOfPlayers,hostname, port, "team2");
-        
-        //DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
-        //Strategy dpsGoToBall = new GoToBallAndShoot(dps);
+        /*
+        DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
+        Strategy dpsGoToBall = new GoToBallAndShoot(dps);
+        for (int i = 0; i < nbOfPlayers; i++)
+        {
+            client = new RobocupClient(InetAddress.getByName(hostname), port,
+                team);
+            client.init("");
 
-        
+            brain = client.getBrain();
+            brain.setStrategy(dpsGoToBall);
 
+            new Thread(client).start();
+            new Thread(brain).start();
+        }
+*/
 //                dps = DirectPolicySearch.load("30_1920_30.zip");
 //                dpsGoto = new DPSGoTo(dps);
 //        Qiteration qit = Qiteration.loadQl("Qit_1_1_1_1_50_178_50_0-9_183.zip");
-        //GoToBallAndShoot qitGotoBall = new GoToBallAndShoot();
+        GoToBallAndShoot qitGotoBall = new GoToBallAndShoot();
         
 //        UniformCover.setGoToBallStrategy(qitGotoBall);
 //        Strategy uniformCover = new UniformCover(5);
 
-        /*for (int i = 0; i < numOfPlayers-2; i++)
+        for (int i = 0; i < numOfPlayers; i++)
         {
             client = new RobocupClient(InetAddress.getByName(hostname), port,
                 "team2");
-            client.init(qitGotoBall);
+            client.init("");
 
             brain = client.getBrain();
             brain.setStrategy(qitGotoBall);
@@ -147,18 +152,6 @@ public class Sebbot
             new Thread(client).start();
             new Thread(brain).start();
         }
-
-        client = new RobocupClient(InetAddress.getByName(hostname), port,
-                "team2");
-        client.init(new GoalieStrategy());
-
-        brain = client.getBrain();
-        brain.setStrategy(new GoalieStrategy());
-
-        new Thread(client).start();
-        new Thread(brain).start();*/
-
-
 
     }
 
@@ -215,66 +208,8 @@ public class Sebbot
     public static void performanceTest()
     {
         //DirectPolicySearch dps = DirectPolicySearch.load("DPS_30_2880_100_50.zip");        
-        //Qiteration qit = Qiteration.loadQl("Qit_4_8_1_1_20_200_20_0-9_197.zip");
+        Qiteration qit = Qiteration.loadQl("Qit_4_8_1_1_20_200_20_0-9_197.zip");
         //PolicyPerformance.testAllDps();
-        //PolicyPerformance.logPerformances(qit, false);
-    }
-    
-    /** Creates a team
-     * 
-     * @param numOfPlayers Number of players on the team
-     * @param hostname Host address
-     * @param port Port number
-     * @param teamName Team size
-     */
-    public static void createTeam(int numOfPlayers, String hostname, int port, String teamName) throws IOException{
-    	RobocupClient client;
-        Brain brain;
-        
-        // main offensive loop
-    	GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
-        for (int i = 0; i < numOfPlayers-5; i++)
-        {
-            client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);
-            client.init(qitGotoBall1);
-
-            brain = client.getBrain();
-            brain.setStrategy(qitGotoBall1);
-
-            new Thread(client).start();
-            new Thread(brain).start();
-        }
-        
-        // defensive loop
-        //DefensiveStrategy defensiveStrategy = new DefensiveStrategy();
-        for (int i = 0; i < 4; i++)
-        {
-        	DefensiveStrategy defensiveStrategy = new DefensiveStrategy();
-        	defensiveStrategy.setStartPos(new Vector2D(30.0, -25.0+15.0*i));
-            client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);//,30.0, -30.0+15.0*i);
-            client.init(defensiveStrategy);
-
-            brain = client.getBrain();
-            brain.setStrategy(defensiveStrategy);
-
-            new Thread(client).start();
-            new Thread(brain).start();
-            
-            // move
-            //client.move(30.0, -40.0+20.0*i);
-        }
-        
-        // goalie
-        GoalieStrategy goalieStrategy = new GoalieStrategy();
-        client = new RobocupClient(InetAddress.getByName(hostname), port,
-                teamName);
-        client.init(goalieStrategy);
-
-        brain = client.getBrain();
-        brain.setStrategy(goalieStrategy);
-
-        new Thread(client).start();
-        new Thread(brain).start();
-    	
+        PolicyPerformance.logPerformances(qit, false);
     }
 }

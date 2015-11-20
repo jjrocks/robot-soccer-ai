@@ -31,6 +31,7 @@ public class RobocupClient implements Runnable
     private int            port;           // Server port
     private String         teamName;       // Team name
     private Brain          brain;          // Actions deciding module
+    private double startX,startY; //starting coordinates
 
     /*
      * =========================================================================
@@ -52,7 +53,26 @@ public class RobocupClient implements Runnable
         this.host = host;
         this.port = port;
         this.teamName = teamName;
+        this.startX = -1;
+        this.startY = -1;
     }
+    
+    /**
+     * @param host
+     * @param port
+     * @param teamName
+     * @throws SocketException
+     */
+    public RobocupClient(InetAddress host, int port, String teamName, double x, double y)
+            throws SocketException
+ {
+		this.socket = new DatagramSocket();
+		this.host = host;
+		this.port = port;
+		this.teamName = teamName;
+		this.startX = x;
+		this.startY = y;
+	}
 
     /**
      * This destructor closes the communication socket.
@@ -238,7 +258,7 @@ public class RobocupClient implements Runnable
             int playerNumber = Integer.valueOf(matcher.group(2));
 
             brain = new Brain(this, leftTeam, playerNumber,
-                strategy);
+                strategy,startX,startY);
             brain.getFullstateInfo().setPlayMode(matcher.group(3));
         }
         else
