@@ -13,6 +13,7 @@ import sebbot.ballcapture.Qiteration;
 import sebbot.strategy.GoToBallAndShoot;
 import sebbot.strategy.DefensiveStrategy;
 import sebbot.strategy.OffensiveStrategy;
+import sebbot.strategy.MidfieldStrategy;
 import sebbot.strategy.GoalieStrategy;
 import sebbot.strategy.Strategy;
 import sebbot.strategy.UniformCover;
@@ -232,17 +233,37 @@ public class Sebbot
     	RobocupClient client;
         Brain brain;
         
-        // main offensive loop
-    	GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
-        for (int i = 0; i < numOfPlayers-5; i++)
+        int offensiveCount = 3;
+        int midfieldCount = 3;
+        int defensiveCount = 3;
+        int[] yCoords = {-20,0,20};
+        
+        // offensive loop
+    	//GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
+        for (int i = 0; i < offensiveCount; i++)
         {
         	OffensiveStrategy offensiveStrategy = new OffensiveStrategy();
-        	offensiveStrategy.setStartPos(-25+15*i);
+        	offensiveStrategy.setStartPos(new Vector2D(15.0,yCoords[i]));
             client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);
             client.init(offensiveStrategy);
 
             brain = client.getBrain();
-            brain.setStrategy(qitGotoBall1);
+            brain.setStrategy(offensiveStrategy);
+
+            new Thread(client).start();
+            new Thread(brain).start();
+        }
+        
+        // mid field loop
+        for (int i = 0; i < midfieldCount; i++)
+        {
+        	MidfieldStrategy midfieldStrategy = new MidfieldStrategy();
+        	midfieldStrategy.setStartPos(yCoords[i]);
+            client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);
+            client.init(midfieldStrategy);
+
+            brain = client.getBrain();
+            brain.setStrategy(midfieldStrategy);
 
             new Thread(client).start();
             new Thread(brain).start();
@@ -250,10 +271,10 @@ public class Sebbot
         
         // defensive loop
         //DefensiveStrategy defensiveStrategy = new DefensiveStrategy();
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < defensiveCount; i++)
         {
         	DefensiveStrategy defensiveStrategy = new DefensiveStrategy();
-        	defensiveStrategy.setStartPos(new Vector2D(30.0, -25.0+15.0*i));
+        	defensiveStrategy.setStartPos(new Vector2D(30.0, yCoords[i]));
             client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);//,30.0, -30.0+15.0*i);
             client.init(defensiveStrategy);
 

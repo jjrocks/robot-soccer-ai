@@ -12,13 +12,11 @@ import sebbot.Vector2D;
  * @author Sebastien Lentz
  *
  */
-public class OffensiveStrategy implements Strategy
+public class MidfieldStrategy implements Strategy
 {
     
     private sebbot.ballcapture.Policy ballCaptureAlgorithm;
-    private Vector2D startPos = new Vector2D(0, 0); // home place
-    //private int homeY = 0; // the y coordinate we default to
-    //private int homeX = 0;
+    private int homeY = 0; // the y coordinate we default to
     private int range = 15; // how far from the ball will the player react?
 
     /*
@@ -31,7 +29,7 @@ public class OffensiveStrategy implements Strategy
     /**
      * @param ballCaptureAlgorithm
      */
-    public OffensiveStrategy(sebbot.ballcapture.Policy ballCaptureAlgorithm)
+    public MidfieldStrategy(sebbot.ballcapture.Policy ballCaptureAlgorithm)
     {
         this.ballCaptureAlgorithm = ballCaptureAlgorithm;
     }
@@ -39,7 +37,7 @@ public class OffensiveStrategy implements Strategy
     /**
      * 
      */
-    public OffensiveStrategy()
+    public MidfieldStrategy()
     {
         this(new sebbot.ballcapture.HandCodedPolicy());
     }
@@ -95,14 +93,7 @@ public class OffensiveStrategy implements Strategy
 			}
 		} else {
 			// go to position
-			if(checkX(rcClient,fsi,player)){
-				// go near goal
-				Vector2D nearGoal = new Vector2D(startPos.getX()*2.5,startPos.getY()/2);
-				CommonStrategies.simpleGoTo(nearGoal, rcClient, fsi, player);
-			} else {
-				// go home
-				CommonStrategies.simpleGoTo(startPos, rcClient, fsi, player);
-			}
+			CommonStrategies.simpleGoTo(new Vector2D(fsi.getBall().getPosition().getX(),homeY), rcClient, fsi, player);
 		}
     }
     
@@ -114,31 +105,9 @@ public class OffensiveStrategy implements Strategy
      */
     public boolean checkY(RobocupClient rcClient, FullstateInfo fsi,
             Player player){
-    	if(fsi.getBall().distanceTo(new Vector2D(fsi.getBall().getPosition().getX(),startPos.getY()))<range){
+    	if(fsi.getBall().distanceTo(new Vector2D(fsi.getBall().getPosition().getX(),homeY))<range){
     		return true;
     	}
-    	return false;
-    }
-    /** Checks to see if the ball is on the correct half of the field
-     * 
-     * @param rcClient
-     * @param fsi
-     * @param player
-     * @return
-     */
-    public boolean checkX(RobocupClient rcClient,FullstateInfo fsi,
-            Player player){
-    	//startPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d, player.getPosition().getY());
-    	if(player.isLeftSide()){
-    		if(fsi.getBall().getPosition().getX()>0){
-    			return true;
-    		}
-    	} else {
-    		if(fsi.getBall().getPosition().getX()<0){
-    			return true;
-    		}
-    	}
-    	
     	return false;
     }
     
@@ -155,7 +124,7 @@ public class OffensiveStrategy implements Strategy
 	 * @param pos
 	 *            The start position
 	 */
-    public void setStartPos(Vector2D pos) {
-		startPos = pos;
+	public void setStartPos(int pos) {
+		homeY = pos;
 	}
 }

@@ -16,6 +16,7 @@ import sebbot.Vector2D;
  */
 public class CommonStrategies
 {
+	private static int minPassDistance = 15;
     /**
      * @param rcClient
      * @param fsi
@@ -65,7 +66,7 @@ public class CommonStrategies
             //double goalPosX = player.isLeftSide() ? 52.5d : -52.5d;
         	
         	// get kick velocity
-        	double velocity = Math.min(100d, Math.max(10d,player.distanceTo(fsi.getBall())));
+        	double velocity = Math.min(100d, Math.max(50d,player.distanceTo(fsi.getBall())));
 
             PlayerAction action = new PlayerAction(PlayerActionType.KICK,
                 velocity, player.angleFromBody(position.getX(), position.getY()), rcClient);
@@ -159,7 +160,7 @@ public class CommonStrategies
 		}
 
 		/* The kick to the player closest to the goal */
-		if (closestToTheGoal != p) {
+		if (closestToTheGoal != p && p.distanceTo(closestToTheGoal) > minPassDistance) {
 			return CommonStrategies.shootToPos(c, fsi, p,
 					closestToTheGoal.getPosition());
 		}
