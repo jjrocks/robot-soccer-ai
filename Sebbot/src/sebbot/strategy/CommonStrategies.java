@@ -28,9 +28,17 @@ public class CommonStrategies
         if (player.distanceTo(fsi.getBall()) <= SoccerParams.KICKABLE_MARGIN)
         { // The ball is in the kickable margin => kick it towards the goal!
             double goalPosX = player.isLeftSide() ? 52.5d : -52.5d;
-
+            
+            // if goal is reachable, kick full strength
+            double kickVelocity = 0;
+            if(player.distanceTo(new Vector2D(goalPosX,0))<30){
+            	kickVelocity = 100d;
+            } else {
+            	// else dribble
+            	kickVelocity = 10d;
+            }
             PlayerAction action = new PlayerAction(PlayerActionType.KICK,
-                100.0d, player.angleFromBody(goalPosX, 0.0d), rcClient);
+                kickVelocity, player.angleFromBody(goalPosX, 0.0d), rcClient);
 
             rcClient.getBrain().getActionsQueue().addLast(action);
 
@@ -55,9 +63,12 @@ public class CommonStrategies
         if (player.distanceTo(fsi.getBall()) <= SoccerParams.KICKABLE_MARGIN)
         { // The ball is in the kickable margin => kick it towards the goal!
             //double goalPosX = player.isLeftSide() ? 52.5d : -52.5d;
+        	
+        	// get kick velocity
+        	double velocity = Math.min(100d, Math.max(10d,player.distanceTo(fsi.getBall())));
 
             PlayerAction action = new PlayerAction(PlayerActionType.KICK,
-                100.0d, player.angleFromBody(position.getX(), position.getY()), rcClient);
+                velocity, player.angleFromBody(position.getX(), position.getY()), rcClient);
 
             rcClient.getBrain().getActionsQueue().addLast(action);
 
