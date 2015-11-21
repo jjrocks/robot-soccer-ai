@@ -18,7 +18,7 @@ import sebbot.PlayerAction;
  * @author Bret Black
  */
 public class DefensiveStrategy implements Strategy {
-	private int range = 30;
+	private int range = 25;
 	private int maxDistanceToEnd = 52;
 	private Vector2D startPos = new Vector2D(0, 0); // home place
 	private sebbot.ballcapture.Policy ballCaptureAlgorithm;
@@ -71,7 +71,7 @@ public class DefensiveStrategy implements Strategy {
 		if (fsi.getBall().distanceTo(startPos) <= range) {
 			// if ball is close to player, move towards it and kick (code taken
 			// from GoToBallAndShoot)
-			if (!simplePass(rcClient, fsi, player)) {
+			if (!CommonStrategies.simplePass(rcClient, fsi, player)) {
 				if (!CommonStrategies.shootToGoal(rcClient, fsi, player)) {
 					State state = new State(fsi, player);
 					Action action = ballCaptureAlgorithm.chooseAction(state);
@@ -90,43 +90,43 @@ public class DefensiveStrategy implements Strategy {
 		}
 	}
 
-	/**
-	 * Pass to someone closer to the goal
-	 * 
-	 * @param c
-	 *            The client
-	 * @param fsi
-	 *            The fullstateinfo
-	 * @param p
-	 *            The Player
-	 * @return True if successful, false if fails or the player is already
-	 *         closest to the goal
-	 * */
-	public boolean simplePass(RobocupClient c, FullstateInfo fsi, Player p) {
-		Ball ball = fsi.getBall();
-		Player[] team = p.isLeftSide() ? fsi.getLeftTeam() : fsi.getRightTeam();
-
-		int numberOfPlayers = team.length;
-
-		// goal coords
-		Vector2D goalPos = new Vector2D(p.isLeftSide() ? 52.0d : -52.0d, 0);
-		/* Find which player in the team is the closest to the goal */
-		Player closestToTheGoal = p;
-		for (int i = 0; i < numberOfPlayers; i++) {
-			if ((team[i] != p)
-					&& (team[i].distanceTo(ball) < closestToTheGoal
-							.distanceTo(goalPos))) {
-				closestToTheGoal = team[i];
-			}
-		}
-
-		/* The kick to the player closest to the goal */
-		if (closestToTheGoal != p) {
-			return CommonStrategies.shootToPos(c, fsi, p,
-					closestToTheGoal.getPosition());
-		}
-		return false;
-	}
+//	/**
+//	 * Pass to someone closer to the goal
+//	 * 
+//	 * @param c
+//	 *            The client
+//	 * @param fsi
+//	 *            The fullstateinfo
+//	 * @param p
+//	 *            The Player
+//	 * @return True if successful, false if fails or the player is already
+//	 *         closest to the goal
+//	 * */
+//	public boolean simplePass(RobocupClient c, FullstateInfo fsi, Player p) {
+//		Ball ball = fsi.getBall();
+//		Player[] team = p.isLeftSide() ? fsi.getLeftTeam() : fsi.getRightTeam();
+//
+//		int numberOfPlayers = team.length;
+//
+//		// goal coords
+//		Vector2D goalPos = new Vector2D(p.isLeftSide() ? 52.0d : -52.0d, 0);
+//		/* Find which player in the team is the closest to the goal */
+//		Player closestToTheGoal = p;
+//		for (int i = 0; i < numberOfPlayers; i++) {
+//			if ((team[i] != p)
+//					&& (team[i].distanceTo(ball) < closestToTheGoal
+//							.distanceTo(goalPos))) {
+//				closestToTheGoal = team[i];
+//			}
+//		}
+//
+//		/* The kick to the player closest to the goal */
+//		if (closestToTheGoal != p) {
+//			return CommonStrategies.shootToPos(c, fsi, p,
+//					closestToTheGoal.getPosition());
+//		}
+//		return false;
+//	}
 
 	/*
 	 * =========================================================================

@@ -12,6 +12,7 @@ import sebbot.ballcapture.PolicyPerformance;
 import sebbot.ballcapture.Qiteration;
 import sebbot.strategy.GoToBallAndShoot;
 import sebbot.strategy.DefensiveStrategy;
+import sebbot.strategy.OffensiveStrategy;
 import sebbot.strategy.GoalieStrategy;
 import sebbot.strategy.Strategy;
 import sebbot.strategy.UniformCover;
@@ -235,8 +236,10 @@ public class Sebbot
     	GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
         for (int i = 0; i < numOfPlayers-5; i++)
         {
+        	OffensiveStrategy offensiveStrategy = new OffensiveStrategy();
+        	offensiveStrategy.setStartPos(-25+15*i);
             client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);
-            client.init(qitGotoBall1);
+            client.init(offensiveStrategy);
 
             brain = client.getBrain();
             brain.setStrategy(qitGotoBall1);

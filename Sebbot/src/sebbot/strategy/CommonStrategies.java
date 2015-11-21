@@ -1,5 +1,6 @@
 package sebbot.strategy;
 
+import sebbot.Ball;
 import sebbot.FullstateInfo;
 import sebbot.MobileObject;
 import sebbot.Player;
@@ -115,4 +116,42 @@ public class CommonStrategies
     {
         return simpleGoTo(o.getPosition(), s, fsi, p);
     }
+    
+    /**
+	 * Pass to someone closer to the goal
+	 * 
+	 * @param c
+	 *            The client
+	 * @param fsi
+	 *            The fullstateinfo
+	 * @param p
+	 *            The Player
+	 * @return True if successful, false if fails or the player is already
+	 *         closest to the goal
+	 * */
+	public static boolean simplePass(RobocupClient c, FullstateInfo fsi, Player p) {
+		Ball ball = fsi.getBall();
+		Player[] team = p.isLeftSide() ? fsi.getLeftTeam() : fsi.getRightTeam();
+
+		int numberOfPlayers = team.length;
+
+		// goal coords
+		Vector2D goalPos = new Vector2D(p.isLeftSide() ? 52.0d : -52.0d, 0);
+		/* Find which player in the team is the closest to the goal */
+		Player closestToTheGoal = p;
+		for (int i = 0; i < numberOfPlayers; i++) {
+			if ((team[i] != p)
+					&& (team[i].distanceTo(ball) < closestToTheGoal
+							.distanceTo(goalPos))) {
+				closestToTheGoal = team[i];
+			}
+		}
+
+		/* The kick to the player closest to the goal */
+		if (closestToTheGoal != p) {
+			return CommonStrategies.shootToPos(c, fsi, p,
+					closestToTheGoal.getPosition());
+		}
+		return false;
+	}
 }
