@@ -40,6 +40,33 @@ public class CommonStrategies
             return false; // Strategy failed.
         }
     }
+    
+    /**
+     * @param rcClient
+     * @param fsi
+     * @param player
+     * @param position
+     * @return
+     */
+    public static boolean shootToPos(RobocupClient rcClient,
+                                      FullstateInfo fsi, Player player, Vector2D position)
+    {
+        if (player.distanceTo(fsi.getBall()) <= SoccerParams.KICKABLE_MARGIN)
+        { // The ball is in the kickable margin => kick it towards the goal!
+            //double goalPosX = player.isLeftSide() ? 52.5d : -52.5d;
+
+            PlayerAction action = new PlayerAction(PlayerActionType.KICK,
+                100.0d, player.angleFromBody(position.getX(), position.getY()), rcClient);
+
+            rcClient.getBrain().getActionsQueue().addLast(action);
+
+            return true; // Strategy succeeded.
+        }
+        else
+        {
+            return false; // Strategy failed.
+        }
+    }
 
     /**
      * @param position
