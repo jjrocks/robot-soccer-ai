@@ -1,5 +1,6 @@
 package sebbot.strategy;
 
+import sebbot.Ball;
 import sebbot.FullstateInfo;
 import sebbot.MobileObject;
 import sebbot.Player;
@@ -15,6 +16,7 @@ import sebbot.Vector2D;
  */
 public class CommonStrategies
 {
+	private static int minPassDistance = 15;
     /**
      * @param rcClient
      * @param fsi
@@ -27,9 +29,47 @@ public class CommonStrategies
         if (player.distanceTo(fsi.getBall()) <= SoccerParams.KICKABLE_MARGIN)
         { // The ball is in the kickable margin => kick it towards the goal!
             double goalPosX = player.isLeftSide() ? 52.5d : -52.5d;
+            
+            // if goal is reachable, kick full strength
+            double kickVelocity = 0;
+            if(player.distanceTo(new Vector2D(goalPosX,0))<30){
+            	kickVelocity = 100d;
+            } else {
+            	// else dribble
+            	kickVelocity = 10d;
+            }
+            PlayerAction action = new PlayerAction(PlayerActionType.KICK,
+                kickVelocity, player.angleFromBody(goalPosX, 0.0d), rcClient);
+
+            rcClient.getBrain().getActionsQueue().addLast(action);
+
+            return true; // Strategy succeeded.
+        }
+        else
+        {
+            return false; // Strategy failed.
+        }
+    }
+    
+    /**
+     * @param rcClient
+     * @param fsi
+     * @param player
+     * @param position
+     * @return
+     */
+    public static boolean shootToPos(RobocupClient rcClient,
+                                      FullstateInfo fsi, Player player, Vector2D position)
+    {
+        if (player.distanceTo(fsi.getBall()) <= SoccerParams.KICKABLE_MARGIN)
+        { // The ball is in the kickable margin => kick it towards the goal!
+            //double goalPosX = player.isLeftSide() ? 52.5d : -52.5d;
+        	
+        	// get kick velocity
+        	double velocity = Math.min(100d, Math.max(50d,player.distanceTo(fsi.getBall())));
 
             PlayerAction action = new PlayerAction(PlayerActionType.KICK,
-                100.0d, player.angleFromBody(goalPosX, 0.0d), rcClient);
+                velocity, player.angleFromBody(position.getX(), position.getY()), rcClient);
 
             rcClient.getBrain().getActionsQueue().addLast(action);
 
@@ -88,4 +128,42 @@ public class CommonStrategies
     {
         return simpleGoTo(o.getPosition(), s, fsi, p);
     }
+    
+    /**
+	 * Pass to someone closer to the goal
+	 * 
+	 * @param c
+	 *            The client
+	 * @param fsi
+	 *            The fullstateinfo
+	 * @param p
+	 *            The Player
+	 * @return True if successful, false if fails or the player is already
+	 *         closest to the goal
+	 * */
+	public static boolean simplePass(RobocupClient c, FullstateInfo fsi, Player p) {
+		Ball ball = fsi.getBall();
+		Player[] team = p.isLeftSide() ? fsi.getLeftTeam() : fsi.getRightTeam();
+
+		int numberOfPlayers = team.length;
+
+		// goal coords
+		Vector2D goalPos = new Vector2D(p.isLeftSide() ? 52.0d : -52.0d, 0);
+		/* Find which player in the team is the closest to the goal */
+		Player closestToTheGoal = p;
+		for (int i = 0; i < numberOfPlayers; i++) {
+			if ((team[i] != p)
+					&& (team[i].distanceTo(ball) < closestToTheGoal
+							.distanceTo(goalPos))) {
+				closestToTheGoal = team[i];
+			}
+		}
+
+		/* The kick to the player closest to the goal */
+		if (closestToTheGoal != p && p.distanceTo(closestToTheGoal) > minPassDistance) {
+			return CommonStrategies.shootToPos(c, fsi, p,
+					closestToTheGoal.getPosition());
+		}
+		return false;
+	}
 }

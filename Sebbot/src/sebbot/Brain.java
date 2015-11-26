@@ -21,6 +21,7 @@ public class Brain implements Runnable
     private Player                   player;       // The player this brain controls
     private Strategy                 strategy;     // Strategy used by this brain
     private ArrayDeque<PlayerAction> actionsQueue; // Contains the actions to be executed.
+    private double startX,startY; //starting coordinates
 
     /*
      * =========================================================================
@@ -46,6 +47,31 @@ public class Brain implements Runnable
                 : fullstateInfo.getRightTeam()[playerNumber - 1];
         this.strategy = strategy;
         this.actionsQueue = new ArrayDeque<PlayerAction>();
+        this.startX = -1;
+        this.startY = -1;
+    }
+    
+    /**
+     * Constructor.
+     * 
+     * @param robocupClient
+     * @param leftSide
+     * @param playerNumber
+     * @param strategy
+     * @param x
+     * @param y
+     */
+    public Brain(RobocupClient robocupClient, boolean leftSide,
+            int playerNumber, Strategy strategy, double x, double y)
+    {
+        this.robocupClient = robocupClient;
+        this.fullstateInfo = new FullstateInfo("");
+        this.player = leftSide ? fullstateInfo.getLeftTeam()[playerNumber - 1]
+                : fullstateInfo.getRightTeam()[playerNumber - 1];
+        this.strategy = strategy;
+        this.actionsQueue = new ArrayDeque<PlayerAction>();
+        this.startX = x;
+        this.startY = y;
     }
 
     /*
@@ -151,7 +177,11 @@ public class Brain implements Runnable
     public void run()
     {
         // Before kick off, position the player somewhere in his side.
-        robocupClient.move(-Math.random() * 52.5, Math.random() * 34.0);
+    	if(startX == -1 || startY == -1){
+    		robocupClient.move(-Math.random() * 52.5, Math.random() * 34.0);
+    	} else {
+    		robocupClient.move(startX, startY);
+    	}
         int lastTimeStep = 0;
         int currentTimeStep = 0;
         while (true) // TODO: change according to the play mode.
