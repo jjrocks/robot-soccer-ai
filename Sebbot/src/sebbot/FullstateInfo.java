@@ -22,10 +22,8 @@ public class FullstateInfo
     final static String SET_FLAG_PATTERN = "\\(\\((f (?:\\w )+\\d{1,2})\\) (\\-?\\d{1,3}(?:\\.\\d)? )+(\\-?\\d{1,3}(\\.\\d)?)\\)";
     final static String PLAYMODE_PATTERN  = "\\(pmode ([a-zA-Z_]*)\\)";
     final static String REAL_NB_PATTERN   = "((?:\\-)?[0-9]+(?:\\.[0-9]+(?:e(?:\\-)?[0-9]+)?)?)";
-    final static String BALL_PATTERN      = "\\(\\(b\\) " + REAL_NB_PATTERN
-                                                  + " " + REAL_NB_PATTERN + " "
-                                                  + REAL_NB_PATTERN + " "
-                                                  + REAL_NB_PATTERN + "\\)";
+    final static String BALL_PATTERN      = "\\(\\(b\\) (\\-?\\d{1,3}(?:\\.\\d)?) (\\-?\\d{1,3}(\\.\\d)?)" +
+            "(?: \\-?\\d{1,3}(?:\\.\\d)?)*\\)";
     final static String PLAYER_PATTERN    = "\\(\\(p ([lr]) ([0-9]{1,2}) ([g[0-9]+])\\) "
                                                   + REAL_NB_PATTERN
                                                   + " "
@@ -220,19 +218,50 @@ public class FullstateInfo
         if(matcher.find())
         {
             // So first we check to see if we know our own position
-            if(true /*player.getPosition().getX() == 0*/)
-            {
+
+            if (true /*player.getPosition().getX() == 0*/) {
                 pattern = Pattern.compile(SET_FLAG_PATTERN);
                 matcher = pattern.matcher(fullstateMsg);
-                if (matcher.find() && matcher.groupCount() == 4) {
-                    // The x ranges from + or - 52.5
-                    // The y ranges from + or - 34
-                    System.out.println(matcher.group(0));
-                    calculatePosition(matcher.group(1), Double.parseDouble(matcher.group(2)), Double.parseDouble(matcher.group(3)));
+                double averageX = 0.0;
+                double averageY = 0.0;
+                int groupCount = 0;
+                while(matcher.find()) {
+                    if (matcher.find() && matcher.groupCount() == 4) {
+                        // The x ranges from + or - 52.5
+                        // The y ranges from + or - 34
+//                        System.out.println(matcher.group(0));
+                        Vector2D currVector = calculatePosition(matcher.group(1), Double.parseDouble(matcher.group(2)),
+                                Double.parseDouble(matcher.group(3)));
+                        if (currVector != null) {
+                            averageX += currVector.getX();
+                            averageY += currVector.getY();
+                            groupCount += 1;
+                        }
+                    }
+                }
+                if (groupCount != 0) {
+                    Vector2D playerVector = new Vector2D(averageX/groupCount, averageY/groupCount);
+                    System.out.println("Player Vector: " + playerVector.toString());
+                    player.setPosition(playerVector);
+                }
+
+                // Gather ball information.
+                pattern = Pattern.compile(BALL_PATTERN);
+                matcher = pattern.matcher(fullstateMsg);
+                if (matcher.find())
+                {
+                    double ballDistance = Double.parseDouble(matcher.group(1));
+                    double ballDegrees = Double.parseDouble(matcher.group(2));
+                    Vector2D ballVector = new Vector2D(ballDistance, ballDegrees, true).add(player.getPosition());
+                    ball.setPosition(ballVector);
+                    System.out.println("Found the ball! " + ballVector.toString());
+                }
+                else
+                {
+//            System.err.println("Could not parse ball info: " + fullstateMsg);
                 }
             }
         }
-
 
         pattern = Pattern.compile(PLAYMODE_PATTERN);
         matcher = pattern.matcher(fullstateMsg);
@@ -248,20 +277,7 @@ public class FullstateInfo
             }
         }
 
-        // Gather ball information.
-        pattern = Pattern.compile(BALL_PATTERN);
-        matcher = pattern.matcher(fullstateMsg);
-        if (matcher.find())
-        {
-            ball.getPosition().setX(Double.valueOf(matcher.group(1)));
-            ball.getPosition().setY(Double.valueOf(matcher.group(2)));
-            ball.getVelocity().setX(Double.valueOf(matcher.group(3)));
-            ball.getVelocity().setY(Double.valueOf(matcher.group(4)));
-        }
-        else
-        {
-//            System.err.println("Could not parse ball info: " + fullstateMsg);
-        }
+
 
         // Get time step.
         pattern = Pattern.compile(TIME_STEP_PATTERN);
@@ -314,12 +330,19 @@ public class FullstateInfo
         }
     }
 
-    public void calculatePosition(String position, double distance, double degrees)
+    /**
+     * Calculates a weird but properly functioning postion that is accurate up to about .01
+     * @param position
+     * @param distance
+     * @param degrees
+     * @return
+     */
+    public Vector2D calculatePosition(String position, double distance, double degrees)
     {
         String[] positions = position.split(" ");
         System.out.println("Flag: " + position + " Distance: " + distance + " Degrees: " + degrees);
         if (positions.length < 4 || (distance == 0 && degrees == 0)) {
-            return;
+            return null;
         }
         int positiveX = 1;
         int positiveY = 1;
@@ -332,21 +355,21 @@ public class FullstateInfo
         {
             case "t":
                 // Negative y value of 34
-                y = -34;
+                y = -39;
                 relatesToX = true;
                 break;
             case "b":
                 // Positive y value 34
-                y = 34;
+                y = 39;
                 relatesToX = true;
                 break;
             case "l":
-                x = -52.5;
-                // Negative x value -52.5
+                x = -57.5;
+                // Negative x value -57.5
                 break;
             case "r":
-                x = 52.5;
-                // Positive x value 52.5
+                x = 57.5;
+                // Positive x value 57.5
                 break;
         }
 
@@ -373,9 +396,9 @@ public class FullstateInfo
         Vector2D playerVector = new Vector2D(distance, degrees+180, true);
 
         Vector2D vector = flagVector.add(playerVector);
-        System.out.println("The player position x is " + vector.getX() + " and y is " + vector.getY());
+//        System.out.println("The player position x is " + vector.getX() + " and y is " + vector.getY());
         player.setPosition(flagVector.add(playerVector));
-
+        return flagVector.add(playerVector);
     }
 
     public void printErrorMessage(String mode)
