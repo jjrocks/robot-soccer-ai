@@ -1,5 +1,6 @@
 package sebbot;
 
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +20,7 @@ public class FullstateInfo
     final static String PLAYER_PARAM_PATTERN = "\\(player_param (\\(.*\\))*\\)";
     final static String PLAYER_TYPE_PATTERN = "\\(player_type (\\(.*\\))*\\)";
     final static String SEE_PATTERN = "\\(see \\d+ \\(";
-    final static String SET_FLAG_PATTERN = "\\(\\((f (?:\\w )+\\d{1,2})\\) (\\-?\\d{1,3}(?:\\.\\d)? )+(\\-?\\d{1,3}(\\.\\d)?)\\)";
+    final static String SET_FLAG_PATTERN = 	"\\(\\(((?:f|g)(?: \\w)+(?: \\d{1,2})*)\\) (\\-?\\d{1,3}(?:\\.\\d)?) (\\-?\\d{1,3}(?:\\.\\d)?)(?: \\-?\\d{1,3}(\\.\\d)?)*\\)";
     final static String PLAYMODE_PATTERN  = "\\(pmode ([a-zA-Z_]*)\\)";
     final static String REAL_NB_PATTERN   = "((?:\\-)?[0-9]+(?:\\.[0-9]+(?:e(?:\\-)?[0-9]+)?)?)";
     final static String BALL_PATTERN      = "\\(\\(b\\) (\\-?\\d{1,3}(?:\\.\\d)?) (\\-?\\d{1,3}(\\.\\d)?)" +
@@ -41,6 +42,7 @@ public class FullstateInfo
     /*
      * Members of the class.
      */
+    public boolean noFlags = true;
     private int         timeStep;     // The time step of the game
     private String      playMode;     // The play mode of the game
     private String      fullstateMsg; // The fullstate msg received from server
@@ -52,15 +54,18 @@ public class FullstateInfo
     private int printCounter;
     private int playerNumber = 1;
     private Player player;
+    private HashMap<String, Vector2D> flagPositions = new HashMap<String, Vector2D>();
+    private RobocupClient robocupClient;
 
     /**
      * Constructor.
      * 
      * @param fullstateMsg
      */
-    public FullstateInfo(String fullstateMsg)
+    public FullstateInfo(String fullstateMsg, Player player, RobocupClient robocupClient)
     {
-        player = new Player(0, 0, 0, 0, true, '0', 0, 1);
+        this.robocupClient = robocupClient;
+        this.player = player;
         this.fullstateMsg = fullstateMsg;
         this.ball = new Ball(0, 0, 0, 0);
         leftTeam = new Player[MAX_PLAYERS];
@@ -70,6 +75,20 @@ public class FullstateInfo
             leftTeam[i] = new Player(0, 0, 0, 0, true, '0', 0, i);
             rightTeam[i] = new Player(0, 0, 0, 0, false, '0', 0, i);
         }
+
+        flagPositions.put("f t 0", new Vector2D(0, -39));
+        flagPositions.put("f b 0", new Vector2D(0, 39));
+        flagPositions.put("f l 0", new Vector2D(-57.5, 0));
+        flagPositions.put("f r 0", new Vector2D(57.5, 0));
+        flagPositions.put("f l t", new Vector2D(-52.5, -34));
+        flagPositions.put("f r t", new Vector2D(52.5, -34));
+        flagPositions.put("f l b", new Vector2D(-52.5, 34));
+        flagPositions.put("f r b", new Vector2D(52.5, 34));
+        flagPositions.put("f c", new Vector2D(0, 0));
+        flagPositions.put("f c b", new Vector2D(0, 34));
+        flagPositions.put("f c t", new Vector2D(0, -34));
+        flagPositions.put("g l", new Vector2D(-52.5, 0));
+        flagPositions.put("g r", new Vector2D(52.5, 0));
     }
 
     /*
@@ -159,6 +178,11 @@ public class FullstateInfo
      * 
      * =========================================================================
      */
+
+    public Player getPlayer() {
+        return player;
+    }
+
     /**
      * This method parses the fullstateMsg string and updates the variables
      * consequently.
@@ -168,6 +192,7 @@ public class FullstateInfo
 //        System.out.println("Parsing data: " + fullstateMsg);
         // Gather playMode information.
         boolean skipStuff = false;
+        noFlags = true;
         Pattern pattern = Pattern.compile(SERVER_PARAM_PATTERN);
         Matcher matcher = pattern.matcher(fullstateMsg);
         if(matcher.find() && !skipStuff)
@@ -218,33 +243,44 @@ public class FullstateInfo
         if(matcher.find())
         {
             // So first we check to see if we know our own position
-
+            pattern = Pattern.compile("\\d+");
+            matcher = pattern.matcher(fullstateMsg);
+            if (matcher.find()) {
+//                System.out.println(fullstateMsg);
+                timeStep = Integer.parseInt(matcher.group(0));
+                System.out.println("Current timestep: " + timeStep);
+            }
             if (true /*player.getPosition().getX() == 0*/) {
                 pattern = Pattern.compile(SET_FLAG_PATTERN);
                 matcher = pattern.matcher(fullstateMsg);
                 double averageX = 0.0;
                 double averageY = 0.0;
                 int groupCount = 0;
+                // We go through all the flags to calculate the average position
                 while(matcher.find()) {
                     if (matcher.find() && matcher.groupCount() == 4) {
-                        // The x ranges from + or - 52.5
-                        // The y ranges from + or - 34
-//                        System.out.println(matcher.group(0));
+                        System.out.println("Matcher says this: " + matcher.group(0));
+                        // We grab the flags data. group 0 is the entire flag data ((f t l 10) 10 32) and group 1
+                        // is the flag id "f t l 10" group 2 is the distance 10 group 3 is the degrees
                         Vector2D currVector = calculatePosition(matcher.group(1), Double.parseDouble(matcher.group(2)),
                                 Double.parseDouble(matcher.group(3)));
+                        // If the vector has a flag we can parse, we'll use that vector to average the data
                         if (currVector != null) {
+                            System.out.println("Current Vector: " + currVector);
                             averageX += currVector.getX();
                             averageY += currVector.getY();
                             groupCount += 1;
                         }
                     }
                 }
+                // If there are any flags in the area we'll go ahead an create the average x and y
                 if (groupCount != 0) {
                     Vector2D playerVector = new Vector2D(averageX/groupCount, averageY/groupCount);
                     System.out.println("Player Vector: " + playerVector.toString());
+                    System.out.println("Player Body direction: " + player.getBodyDirection());
                     player.setPosition(playerVector);
+                    noFlags = false;
                 }
-
                 // Gather ball information.
                 pattern = Pattern.compile(BALL_PATTERN);
                 matcher = pattern.matcher(fullstateMsg);
@@ -260,6 +296,7 @@ public class FullstateInfo
                 {
 //            System.err.println("Could not parse ball info: " + fullstateMsg);
                 }
+                new PlayerAction(PlayerActionType.TURN, 0.0d, 5, robocupClient).execute();
             }
         }
 
@@ -270,6 +307,7 @@ public class FullstateInfo
             System.out.println("Found the successful parsed data");
             this.playMode = matcher.group(1);
         }
+
         else
         {
             if (!skipStuff) {
@@ -308,7 +346,6 @@ public class FullstateInfo
             }
 
             playerNumber = Integer.valueOf(matcher.group(2));
-//            System.out.println("Player Number: " + playerNumber);
 
             if (matcher.group(3).compareToIgnoreCase("g") == 0)
             {
@@ -330,20 +367,23 @@ public class FullstateInfo
         }
     }
 
-    /**
-     * Calculates a weird but properly functioning postion that is accurate up to about .01
-     * @param position
-     * @param distance
-     * @param degrees
-     * @return
-     */
-    public Vector2D calculatePosition(String position, double distance, double degrees)
-    {
-        String[] positions = position.split(" ");
+    public Vector2D calculateFlag(String position, double distance, double degrees) {
         System.out.println("Flag: " + position + " Distance: " + distance + " Degrees: " + degrees);
-        if (positions.length < 4 || (distance == 0 && degrees == 0)) {
+        // THe data gets massivly unreliable the further they are away and the more to the perephrial they are.
+        if ((distance == 0 && degrees == 0) || distance > 70 || degrees > 35 || degrees < -35) {
             return null;
         }
+        // There are about 30 flags that can be calculated for everything else we have a dictionary we initialize at
+        // the begining.
+        if (flagPositions.containsKey(position)) {
+            return flagPositions.get(position);
+        }
+
+        String[] positions = position.split(" ");
+        // At this point we are parsing for the edge flags so all others can return null
+        if (positions.length < 4 || !positions[3].matches("\\d+"))
+            return null;
+
         int positiveX = 1;
         int positiveY = 1;
         boolean relatesToX = false;
@@ -390,14 +430,32 @@ public class FullstateInfo
         else
             y = Double.parseDouble(positions[3]);
 
-        // At this point we have both the x and y. Now we take the position relative to it and put that in too.
         Vector2D flagVector = new Vector2D(x*positiveX, y*positiveY);
-        // We don't know the position of the player but we know the distance from the x and y
-        Vector2D playerVector = new Vector2D(distance, degrees+180, true);
+        return flagVector;
+    }
 
-        Vector2D vector = flagVector.add(playerVector);
-//        System.out.println("The player position x is " + vector.getX() + " and y is " + vector.getY());
-        player.setPosition(flagVector.add(playerVector));
+    /**
+     * Calculates a weird but properly functioning postion that is accurate up to about .01
+     * @param position
+     * @param distance
+     * @param degrees
+     * @return
+     */
+    public Vector2D calculatePosition(String position, double distance, double degrees)
+    {
+
+        // At this point we have both the x and y. Now we take the position relative to it and put that in too.
+        Vector2D flagVector = calculateFlag(position, distance, degrees);
+        if (flagVector == null) {
+            return null;
+        }
+        // We don't know the position of the player but we know the distance from the x and y and the relative degrees
+        // The equation in 4.3.2 (equation 4.6) shows what it will take to calculate it. The body direction starts at 0
+        // where 0 is as if you were on the center of the field (or anywhere in the x axis) pointing to the goal on
+        // the right. So we take that, then turn it around (which is done by either adding or subtracting 180 degrees
+        // then we add the players direction to shift it to the absolute angle.
+        Vector2D playerVector = new Vector2D(distance, degrees+180+player.getBodyDirection(), true);
+
         return flagVector.add(playerVector);
     }
 
@@ -435,4 +493,7 @@ public class FullstateInfo
         return fs;
     }
 
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
 }

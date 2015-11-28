@@ -176,6 +176,10 @@ public class RobocupClient implements Runnable
      */
     public void turn(double moment)
     {
+        Player player = brain.getFullstateInfo().getPlayer();
+        double newAngle = ((player.getBodyDirection() + moment) % 360);
+        player.setBodyDirection(newAngle);
+        brain.getFullstateInfo().setPlayer(player);
         send("(turn " + Double.toString(moment) + ")");
     }
 

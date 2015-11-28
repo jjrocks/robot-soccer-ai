@@ -42,7 +42,7 @@ public class Brain implements Runnable
             int playerNumber, Strategy strategy)
     {
         this.robocupClient = robocupClient;
-        this.fullstateInfo = new FullstateInfo("");
+        this.fullstateInfo = new FullstateInfo("", player, robocupClient);
         this.player = leftSide ? fullstateInfo.getLeftTeam()[playerNumber - 1]
                 : fullstateInfo.getRightTeam()[playerNumber - 1];
         this.strategy = strategy;
@@ -65,9 +65,10 @@ public class Brain implements Runnable
             int playerNumber, Strategy strategy, double x, double y)
     {
         this.robocupClient = robocupClient;
-        this.fullstateInfo = new FullstateInfo("");
-        this.player = leftSide ? fullstateInfo.getLeftTeam()[playerNumber - 1]
-                : fullstateInfo.getRightTeam()[playerNumber - 1];
+        player = new Player(x, y, 0, 0, leftSide, 0, 0, playerNumber);
+        this.fullstateInfo = new FullstateInfo("", player, robocupClient);
+//        this.player = leftSide ? fullstateInfo.getLeftTeam()[playerNumber - 1]
+//                : fullstateInfo.getRightTeam()[playerNumber - 1];
         this.strategy = strategy;
         this.actionsQueue = new ArrayDeque<PlayerAction>();
         this.startX = x;
@@ -186,9 +187,10 @@ public class Brain implements Runnable
         int currentTimeStep = 0;
         while (true) // TODO: change according to the play mode.
         {
+            player = fullstateInfo.getPlayer();
             lastTimeStep = currentTimeStep;
             currentTimeStep = fullstateInfo.getTimeStep();
-            if (currentTimeStep == lastTimeStep + 1)
+            if (currentTimeStep >= lastTimeStep + 1)
             {
                 if (actionsQueue.isEmpty())
                 { // The queue is empty, check if we need to add an action.

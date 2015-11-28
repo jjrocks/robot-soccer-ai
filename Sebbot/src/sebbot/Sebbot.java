@@ -115,14 +115,14 @@ public class Sebbot
         }
 
         
-        int numOfPlayers = 10; // because 11 is bugged
+        int numOfPlayers = 1; // because 11 is bugged
 
         String curDir = System.getProperty("user.dir");
         System.out.println("Current sys dir: " + curDir);
         
         // create teams
         createTeam(numOfPlayers, hostname, port, team);
-        createTeam(numOfPlayers,hostname, port, "team2");
+//        createTeam(numOfPlayers,hostname, port, "team2");
         
         //DirectPolicySearch dps = DirectPolicySearch.load("savedDPS2.zip");
         //Strategy dpsGoToBall = new GoToBallAndShoot(dps);
@@ -233,9 +233,9 @@ public class Sebbot
     	RobocupClient client;
         Brain brain;
         
-        int offensiveCount = 3;
-        int midfieldCount = 3;
-        int defensiveCount = 3;
+        int offensiveCount = 0;
+        int midfieldCount = 0;
+        int defensiveCount = 0;
         int[] yCoords = {-20,0,20};
         
         // offensive loop

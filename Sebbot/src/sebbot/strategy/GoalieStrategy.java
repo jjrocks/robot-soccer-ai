@@ -1,12 +1,8 @@
 package sebbot.strategy;
 
-import sebbot.FullstateInfo;
-import sebbot.Player;
-import sebbot.RobocupClient;
-import sebbot.Vector2D;
+import sebbot.*;
 import sebbot.ballcapture.Action;
 import sebbot.ballcapture.State;
-import sebbot.PlayerAction;
 
 
 /**
@@ -56,6 +52,11 @@ public class GoalieStrategy implements Strategy {
     public void doAction(RobocupClient rcClient, FullstateInfo fsi, Player player) {
 	// save goal position
 	Vector2D goalPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d,0);
+		if (fsi.noFlags)
+		{
+			PlayerAction playerAction = new PlayerAction(PlayerActionType.TURN, 0.0d, 45, rcClient);
+			rcClient.getBrain().getActionsQueue().addFirst(playerAction);
+		}
 
 	// kick the ball if it is in range
 	// ball is NOT in range, try different strategy (taken from GoToBallAndShoot)
@@ -74,13 +75,5 @@ public class GoalieStrategy implements Strategy {
 		// if ball is far from player, move to goal
 		CommonStrategies.simpleGoTo(goalPos, rcClient, fsi, player);
 	}
-
-	// yell out the player number
-        /*if(player.getUniformNumber() == 10) {
-            System.out.println("I am player 10");
-        }
-        else {
-            System.out.println("This isn't working :c");
-        }*/
     }
 }

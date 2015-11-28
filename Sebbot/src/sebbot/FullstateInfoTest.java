@@ -18,8 +18,14 @@ public class FullstateInfoTest {
     @Test
     public void testCalculatePosition() throws Exception {
 
-        FullstateInfo fullstateInfo = new FullstateInfo("Wooooo");
+        FullstateInfo fullstateInfo = new FullstateInfo("Wooooo", new Player(0, 0, 0, 0, true, 0, 0, 0), null);
         fullstateInfo.calculatePosition("f t l 50", 40, -90);
+        Vector2D vector2D = fullstateInfo.calculatePosition("f t r 30", 100.5, 36);
+        vector2D = fullstateInfo.calculatePosition("f p b c", 20, 50);
+        vector2D = fullstateInfo.calculatePosition("g l", 20, 9);
+        vector2D = fullstateInfo.calculatePosition("f t l 10", 20, -37);
+        vector2D = fullstateInfo.calculatePosition("f c b", 5, 0);
+        System.out.println(vector2D);
 
     }
 }
