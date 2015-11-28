@@ -274,7 +274,7 @@ public class Sebbot
         for (int i = 0; i < defensiveCount; i++)
         {
         	DefensiveStrategy defensiveStrategy = new DefensiveStrategy();
-        	defensiveStrategy.setStartPos(new Vector2D(30.0, yCoords[i]));
+        	defensiveStrategy.setStartPos(new Vector2D(35.0, yCoords[i]));
             client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);//,30.0, -30.0+15.0*i);
             client.init(defensiveStrategy);
 

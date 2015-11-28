@@ -19,7 +19,7 @@ public class OffensiveStrategy implements Strategy
     private Vector2D startPos = new Vector2D(0, 0); // home place
     //private int homeY = 0; // the y coordinate we default to
     //private int homeX = 0;
-    private int range = 15; // how far from the ball will the player react?
+    private int range = 30; // how far from the ball will the player react?
 
     /*
      * =========================================================================
@@ -81,7 +81,7 @@ public class OffensiveStrategy implements Strategy
     public void doAction(RobocupClient rcClient, FullstateInfo fsi,
                          Player player)
     {   
-        if (checkY(rcClient,fsi,player)) {
+        if (checkY(rcClient,fsi,player) && checkX(rcClient,fsi,player)) {
 			// if ball is close to player, move towards it and kick (code taken
 			// from GoToBallAndShoot)
 			if (!CommonStrategies.simplePass(rcClient, fsi, player)) {
@@ -95,9 +95,15 @@ public class OffensiveStrategy implements Strategy
 			}
 		} else {
 			// go to position
+			
+			// normalize startPos x
+			startPos.setX(player.isLeftSide() ? Math.abs(startPos.getX())
+					: -Math.abs(startPos.getX()));
+						
+						
 			if(checkX(rcClient,fsi,player)){
 				// go near goal
-				Vector2D nearGoal = new Vector2D(startPos.getX()*2.5,startPos.getY()/2);
+				Vector2D nearGoal = new Vector2D(startPos.getX()*2.1,startPos.getY()/2);
 				CommonStrategies.simpleGoTo(nearGoal, rcClient, fsi, player);
 			} else {
 				// go home

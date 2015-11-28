@@ -36,7 +36,7 @@ public class CommonStrategies
             	kickVelocity = 100d;
             } else {
             	// else dribble
-            	kickVelocity = 10d;
+            	kickVelocity = 20d;
             }
             PlayerAction action = new PlayerAction(PlayerActionType.KICK,
                 kickVelocity, player.angleFromBody(goalPosX, 0.0d), rcClient);
@@ -142,6 +142,8 @@ public class CommonStrategies
 	 *         closest to the goal
 	 * */
 	public static boolean simplePass(RobocupClient c, FullstateInfo fsi, Player p) {
+		//return false;
+		
 		Ball ball = fsi.getBall();
 		Player[] team = p.isLeftSide() ? fsi.getLeftTeam() : fsi.getRightTeam();
 
@@ -153,14 +155,14 @@ public class CommonStrategies
 		Player closestToTheGoal = p;
 		for (int i = 0; i < numberOfPlayers; i++) {
 			if ((team[i] != p)
-					&& (team[i].distanceTo(ball) < closestToTheGoal
+					&& (team[i].distanceTo(goalPos) < closestToTheGoal
 							.distanceTo(goalPos))) {
 				closestToTheGoal = team[i];
 			}
 		}
-
+	
 		/* The kick to the player closest to the goal */
-		if (closestToTheGoal != p && p.distanceTo(closestToTheGoal) > minPassDistance) {
+		if (closestToTheGoal.getPlayerNumber() != p.getPlayerNumber() && p.distanceTo(closestToTheGoal) > minPassDistance) {
 			return CommonStrategies.shootToPos(c, fsi, p,
 					closestToTheGoal.getPosition());
 		}
