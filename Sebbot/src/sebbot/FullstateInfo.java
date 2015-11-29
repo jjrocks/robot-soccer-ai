@@ -90,6 +90,16 @@ public class FullstateInfo
         flagPositions.put("f c t", new Vector2D(0, -34));
         flagPositions.put("g l", new Vector2D(-52.5, 0));
         flagPositions.put("g r", new Vector2D(52.5, 0));
+        flagPositions.put("f p l t", new Vector2D(-35.7, -20.1));
+        flagPositions.put("f p l b", new Vector2D(-35.7, 20.1));
+        flagPositions.put("f p r t", new Vector2D(35.7, -20.1));
+        flagPositions.put("f p r b", new Vector2D(35.7, 20.1));
+        flagPositions.put("f p l c", new Vector2D(-35.7, 0));
+        flagPositions.put("f p r c", new Vector2D(35.7, 0));
+        flagPositions.put("f g l t", new Vector2D(-52.5, -7));
+        flagPositions.put("f g l b", new Vector2D(-52.5, 7));
+        flagPositions.put("f g r t", new Vector2D(52.5, -7));
+        flagPositions.put("f g r b", new Vector2D(52.5, 7));
     }
 
     /*
@@ -300,7 +310,7 @@ public class FullstateInfo
                 {
 //            System.err.println("Could not parse ball info: " + fullstateMsg);
                 }
-//                new PlayerAction(PlayerActionType.TURN, 0.0d, 5, robocupClient).execute();
+                new PlayerAction(PlayerActionType.TURN, 0.0d, 5, robocupClient).execute();
             }
         }
 
@@ -374,7 +384,7 @@ public class FullstateInfo
     public Vector2D calculateFlag(String position, double distance, double degrees) {
         System.out.println("Flag: " + position + " Distance: " + distance + " Degrees: " + degrees);
         // THe data gets massivly unreliable the further they are away and the more to the perephrial they are.
-        if ((distance == 0 && degrees == 0) || distance > 100 || degrees > 40 || degrees < -40) {
+        if ((distance == 0 && degrees == 0) || distance > 80 || degrees > 30 || degrees < -30) {
             System.out.println("Discarding flag based off of distance and degrees");
             return null;
         }
