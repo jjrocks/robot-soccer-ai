@@ -25,6 +25,7 @@ public class FullstateInfoTest {
         vector2D = fullstateInfo.calculatePosition("g l", 20, 9);
         vector2D = fullstateInfo.calculatePosition("f t l 10", 20, -37);
         vector2D = fullstateInfo.calculatePosition("f c b", 5, 0);
+        vector2D = fullstateInfo.calculatePosition("f b r 40", 64.1, 22);
         System.out.println(vector2D);
 
     }

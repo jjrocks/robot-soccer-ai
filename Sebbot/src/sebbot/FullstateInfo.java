@@ -43,6 +43,7 @@ public class FullstateInfo
      * Members of the class.
      */
     public boolean noFlags = true;
+    public boolean seesBall = false;
     private int         timeStep;     // The time step of the game
     private String      playMode;     // The play mode of the game
     private String      fullstateMsg; // The fullstate msg received from server
@@ -192,7 +193,8 @@ public class FullstateInfo
 //        System.out.println("Parsing data: " + fullstateMsg);
         // Gather playMode information.
         boolean skipStuff = false;
-        noFlags = true;
+        noFlags = false;
+        seesBall = false;
         Pattern pattern = Pattern.compile(SERVER_PARAM_PATTERN);
         Matcher matcher = pattern.matcher(fullstateMsg);
         if(matcher.find() && !skipStuff)
@@ -277,8 +279,9 @@ public class FullstateInfo
                 if (groupCount != 0) {
                     Vector2D playerVector = new Vector2D(averageX/groupCount, averageY/groupCount);
                     System.out.println("Player Vector: " + playerVector.toString());
+                    System.out.println("Actual Player Position: " + player.getPosition());
                     System.out.println("Player Body direction: " + player.getBodyDirection());
-                    player.setPosition(playerVector);
+//                    player.setPosition(playerVector);
                     noFlags = false;
                 }
                 // Gather ball information.
@@ -291,12 +294,13 @@ public class FullstateInfo
                     Vector2D ballVector = new Vector2D(ballDistance, ballDegrees, true).add(player.getPosition());
                     ball.setPosition(ballVector);
                     System.out.println("Found the ball! " + ballVector.toString());
+                    seesBall = true;
                 }
                 else
                 {
 //            System.err.println("Could not parse ball info: " + fullstateMsg);
                 }
-                new PlayerAction(PlayerActionType.TURN, 0.0d, 5, robocupClient).execute();
+//                new PlayerAction(PlayerActionType.TURN, 0.0d, 5, robocupClient).execute();
             }
         }
 
@@ -370,7 +374,8 @@ public class FullstateInfo
     public Vector2D calculateFlag(String position, double distance, double degrees) {
         System.out.println("Flag: " + position + " Distance: " + distance + " Degrees: " + degrees);
         // THe data gets massivly unreliable the further they are away and the more to the perephrial they are.
-        if ((distance == 0 && degrees == 0) || distance > 70 || degrees > 35 || degrees < -35) {
+        if ((distance == 0 && degrees == 0) || distance > 100 || degrees > 40 || degrees < -40) {
+            System.out.println("Discarding flag based off of distance and degrees");
             return null;
         }
         // There are about 30 flags that can be calculated for everything else we have a dictionary we initialize at
@@ -381,8 +386,10 @@ public class FullstateInfo
 
         String[] positions = position.split(" ");
         // At this point we are parsing for the edge flags so all others can return null
-        if (positions.length < 4 || !positions[3].matches("\\d+"))
+        if (positions.length < 4 || !positions[3].matches("\\d+")) {
+            System.out.println("Discarding flag based off flag not in the database");
             return null;
+        }
 
         int positiveX = 1;
         int positiveY = 1;
@@ -454,9 +461,14 @@ public class FullstateInfo
         // where 0 is as if you were on the center of the field (or anywhere in the x axis) pointing to the goal on
         // the right. So we take that, then turn it around (which is done by either adding or subtracting 180 degrees
         // then we add the players direction to shift it to the absolute angle.
-        Vector2D playerVector = new Vector2D(distance, degrees+180+player.getBodyDirection(), true);
-
-        return flagVector.add(playerVector);
+        Vector2D playerVector = new Vector2D(distance, degrees + 180 + player.getBodyDirection(), true);
+        Vector2D finalVector = flagVector.add(playerVector);
+        if (finalVector.getX() > -57.5 && finalVector.getY() < 57.5 && finalVector.getY() > -39 &&
+                finalVector.getY() < 39) {
+            return finalVector;
+        }
+        System.out.println("Discarding based off the the calculation out of bounds: " + finalVector);
+        return null;
     }
 
     public void printErrorMessage(String mode)

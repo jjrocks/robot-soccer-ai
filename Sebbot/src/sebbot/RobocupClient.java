@@ -168,6 +168,7 @@ public class RobocupClient implements Runnable
      */
     public void move(double x, double y)
     {
+        brain.getFullstateInfo().getPlayer().setPosition(new Vector2D(x, y));
         send("(move " + Double.toString(x) + " " + Double.toString(y) + ")");
     }
 
@@ -188,6 +189,9 @@ public class RobocupClient implements Runnable
      */
     public void dash(double power)
     {
+        Player player = brain.getFullstateInfo().getPlayer();
+        player.setPosition(player.nextPosition(power));
+        brain.getFullstateInfo().setPlayer(player);
         send("(dash " + Double.toString(power) + ")");
     }
 

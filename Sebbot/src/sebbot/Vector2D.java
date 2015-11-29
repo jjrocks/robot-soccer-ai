@@ -7,10 +7,11 @@ package sebbot;
  */
 public class Vector2D implements Cloneable
 {
-    // The actuall positions within the field
+    // The actuallpositions within the field
     private double x;
     private double y;
 
+    // In this case component 2 is supposed to be in degrees
     public Vector2D(double component1, double component2,
             boolean arePolarCoordinates)
     {

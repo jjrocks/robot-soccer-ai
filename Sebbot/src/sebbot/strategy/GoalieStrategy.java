@@ -54,7 +54,7 @@ public class GoalieStrategy implements Strategy {
 	Vector2D goalPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d,0);
 		if (fsi.noFlags)
 		{
-			PlayerAction playerAction = new PlayerAction(PlayerActionType.TURN, 0.0d, 45, rcClient);
+			PlayerAction playerAction = new PlayerAction(PlayerActionType.TURN, 0.0d, 10, rcClient);
 			rcClient.getBrain().getActionsQueue().addFirst(playerAction);
 		}
 

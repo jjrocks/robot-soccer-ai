@@ -233,9 +233,9 @@ public class Sebbot
     	RobocupClient client;
         Brain brain;
         
-        int offensiveCount = 0;
-        int midfieldCount = 0;
-        int defensiveCount = 0;
+        int offensiveCount = 3;
+        int midfieldCount = 3;
+        int defensiveCount = 3;
         int[] yCoords = {-20,0,20};
         
         // offensive loop
