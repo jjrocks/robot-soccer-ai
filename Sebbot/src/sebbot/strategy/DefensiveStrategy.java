@@ -18,7 +18,8 @@ import sebbot.PlayerAction;
  * @author Bret Black
  */
 public class DefensiveStrategy implements Strategy {
-	private int range = 25;
+	private int range = 10; // point at which defenders consider the ball (dist from center)
+	private int attackRange = 15; // the point at which the defenders swarm the ball (dist from player)
 	private int maxDistanceToEnd = 52;
 	private Vector2D startPos = new Vector2D(0, 0); // home place
 	private sebbot.ballcapture.Policy ballCaptureAlgorithm;
@@ -68,7 +69,7 @@ public class DefensiveStrategy implements Strategy {
 		// kick the ball if it is in range
 		// ball is NOT in range, try different strategy (inspired by
 		// GoToBallAndShoot)
-		if (fsi.getBall().distanceTo(startPos) <= range) {
+		if (checkX(rcClient, fsi, player)/*fsi.getBall().distanceTo(startPos) <= range*/) {
 			// if ball is close to player, move towards it and kick (code taken
 			// from GoToBallAndShoot)
 			if (!CommonStrategies.simplePass(rcClient, fsi, player)) {
@@ -89,44 +90,56 @@ public class DefensiveStrategy implements Strategy {
 			CommonStrategies.simpleGoTo(startPos, rcClient, fsi, player);
 		}
 	}
+	
+	/** Checks to see if the ball is on the correct half of the field
+     * 
+     * @param rcClient
+     * @param fsi
+     * @param player
+     * @return
+     */
+    public boolean checkX(RobocupClient rcClient,FullstateInfo fsi,
+            Player player){
+		boolean correctSide = ((player.getPosition().getX()>0==fsi.getBall().getPosition().getX()>0));
+		boolean inRange = Math.abs(fsi.getBall().getPosition().getX()) > range;
+		boolean attack = (int)player.distanceTo(fsi.getBall()) < attackRange;
+		
+		// consider all cases
+    	return (correctSide && inRange && closestToBall(rcClient,fsi,player)) || (attack && correctSide);
+    	//startPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d, player.getPosition().getY());
+    	/*if(player.isLeftSide()){
+    		if(fsi.getBall().getPosition().getX()<0){
+    			return true;
+    		}
+    	} else {
+    		if(fsi.getBall().getPosition().getX()>0){
+    			return true;
+    		}
+    	}
+    	
+    	return false;*/
+    }
+    
+    public boolean closestToBall(RobocupClient rcClient, FullstateInfo fsi, Player p){
+    	Ball ball = fsi.getBall();
+		Player[] team = p.isLeftSide() ? fsi.getLeftTeam() : fsi.getRightTeam();
 
-//	/**
-//	 * Pass to someone closer to the goal
-//	 * 
-//	 * @param c
-//	 *            The client
-//	 * @param fsi
-//	 *            The fullstateinfo
-//	 * @param p
-//	 *            The Player
-//	 * @return True if successful, false if fails or the player is already
-//	 *         closest to the goal
-//	 * */
-//	public boolean simplePass(RobocupClient c, FullstateInfo fsi, Player p) {
-//		Ball ball = fsi.getBall();
-//		Player[] team = p.isLeftSide() ? fsi.getLeftTeam() : fsi.getRightTeam();
-//
-//		int numberOfPlayers = team.length;
-//
-//		// goal coords
-//		Vector2D goalPos = new Vector2D(p.isLeftSide() ? 52.0d : -52.0d, 0);
-//		/* Find which player in the team is the closest to the goal */
-//		Player closestToTheGoal = p;
-//		for (int i = 0; i < numberOfPlayers; i++) {
-//			if ((team[i] != p)
-//					&& (team[i].distanceTo(ball) < closestToTheGoal
-//							.distanceTo(goalPos))) {
-//				closestToTheGoal = team[i];
-//			}
-//		}
-//
-//		/* The kick to the player closest to the goal */
-//		if (closestToTheGoal != p) {
-//			return CommonStrategies.shootToPos(c, fsi, p,
-//					closestToTheGoal.getPosition());
-//		}
-//		return false;
-//	}
+		int numberOfPlayers = team.length;
+
+		// goal coords
+		Vector2D goalPos = new Vector2D(p.isLeftSide() ? 52.0d : -52.0d, 0);
+		/* Find which player in the team is the closest to the goal */
+		Player closestToTheBall = p;
+		for (int i = 0; i < numberOfPlayers; i++) {
+			if ((team[i] != p)
+					&& (team[i].distanceTo(ball.getPosition()) < closestToTheBall
+							.distanceTo(ball.getPosition()))) {
+				closestToTheBall = team[i];
+			}
+		}
+		
+		return (closestToTheBall.getPlayerNumber() == p.getPlayerNumber());
+    }
 
 	/*
 	 * =========================================================================
