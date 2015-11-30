@@ -80,6 +80,8 @@ public class OffensiveStrategy implements Strategy
         if (!fsi.seesBall)
         {
             PlayerAction action = new PlayerAction(PlayerActionType.TURN, 0.0d, 20,rcClient);
+            // If we can't see the ball clear all possible actions cause we first gotta find it.
+            rcClient.getBrain().getActionsQueue().clear();
             rcClient.getBrain().getActionsQueue().addFirst(action);
             return;
         }

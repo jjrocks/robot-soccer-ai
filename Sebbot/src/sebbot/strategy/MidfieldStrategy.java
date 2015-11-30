@@ -1,12 +1,8 @@
 package sebbot.strategy;
 
-import sebbot.FullstateInfo;
-import sebbot.Player;
-import sebbot.PlayerAction;
-import sebbot.RobocupClient;
+import sebbot.*;
 import sebbot.ballcapture.Action;
 import sebbot.ballcapture.State;
-import sebbot.Vector2D;
 
 /**
  * @author Sebastien Lentz
@@ -78,7 +74,15 @@ public class MidfieldStrategy implements Strategy
     @Override
     public void doAction(RobocupClient rcClient, FullstateInfo fsi,
                          Player player)
-    {   
+    {
+        if (!fsi.seesBall)
+        {
+            PlayerAction action = new PlayerAction(PlayerActionType.TURN, 0.0d, 20,rcClient);
+            // We first gotta find the ball again.
+            rcClient.getBrain().getActionsQueue().clear();
+            rcClient.getBrain().getActionsQueue().addFirst(action);
+            return;
+        }
         if (checkY(rcClient,fsi,player)) {
 			// if ball is close to player, move towards it and kick (code taken
 			// from GoToBallAndShoot)

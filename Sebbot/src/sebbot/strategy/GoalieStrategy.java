@@ -54,8 +54,11 @@ public class GoalieStrategy implements Strategy {
 	Vector2D goalPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d,0);
 		if (fsi.noFlags)
 		{
+			// Our position is wrong, we have to calibrate properly
 			PlayerAction playerAction = new PlayerAction(PlayerActionType.TURN, 0.0d, 10, rcClient);
+			rcClient.getBrain().getActionsQueue().clear();
 			rcClient.getBrain().getActionsQueue().addFirst(playerAction);
+			return;
 		}
 
 	// kick the ball if it is in range

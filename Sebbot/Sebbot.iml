@@ -20,5 +20,16 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/Trilateration-master/lib/commons-math3-3.5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" exported="" name="commons-math3-3.5" level="project" />
+    <orderEntry type="module" module-name="Trilateration" exported="" />
   </component>
 </module>
