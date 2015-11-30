@@ -55,6 +55,7 @@ public class GoalieStrategy implements Strategy {
 	Vector2D goalPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d,0);
 		if (fsi.noFlags)
 		{
+			System.out.println("NO FLAGS SEEN BY GOALIE");
 			// Our position is wrong, we have to calibrate properly
 			PlayerAction playerAction = new PlayerAction(PlayerActionType.TURN, 0.0d, 10, rcClient);
 			rcClient.getBrain().getActionsQueue().clear();
@@ -67,6 +68,7 @@ public class GoalieStrategy implements Strategy {
 	// check distance
 	if (player.distanceTo(fsi.getBall()) <= goalieRange && player.distanceTo(goalPos) <= maxDistanceToGoal){
 		// if ball is close to player, move towards it and kick (code taken from GoToBallAndShoot)
+		System.out.println("GOALIE ATTEMPTING TO SHOOT BALL");
 		if (!CommonStrategies.shootToGoal(rcClient, fsi, player))
 		{
 			State state = new State(fsi, player);
@@ -89,7 +91,10 @@ public class GoalieStrategy implements Strategy {
 			yVal = ballPos.getY() > 0 ? goalWidth : -goalWidth;
 			
 		}
-		CommonStrategies.simpleGoTo(new Vector2D(goalPos.getX(),yVal), rcClient, fsi, player);
+		System.out.println("GOALIE GOING TO POS " + goalPos.getX() + ", " + yVal);
+		if(player.distanceTo(new Vector2D(goalPos.getX(),yVal)) > 3) {
+			CommonStrategies.simpleGoTo(new Vector2D(goalPos.getX(), yVal), rcClient, fsi, player);
+		}
 	}
     }
 }

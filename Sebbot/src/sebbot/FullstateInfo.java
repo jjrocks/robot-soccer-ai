@@ -5,6 +5,7 @@ import com.lemmingapex.trilateration.TrilaterationFunction;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -27,6 +28,7 @@ public class FullstateInfo
     final static String PLAYER_TYPE_PATTERN = "\\(player_type (\\(.*\\))*\\)";
     final static String SEE_PATTERN = "\\(see \\d+ \\(";
     final static String SET_FLAG_PATTERN = 	"\\(\\(((?:f|g)(?: \\w)+(?: \\d{1,2})*)\\) (\\-?\\d{1,3}(?:\\.\\d)?) (\\-?\\d{1,3}(?:\\.\\d)?)(?: \\-?\\d{1,3}(\\.\\d)?)*\\)";
+    final static String SENSE_BODY_PATTERN = "\\(sense_body \\d+ \\(";
     final static String PLAYMODE_PATTERN  = "\\(pmode ([a-zA-Z_]*)\\)";
     final static String REAL_NB_PATTERN   = "((?:\\-)?[0-9]+(?:\\.[0-9]+(?:e(?:\\-)?[0-9]+)?)?)";
     final static String BALL_PATTERN      = "\\(\\(b\\) (\\-?\\d{1,3}(?:\\.\\d)?) (\\-?\\d{1,3}(\\.\\d)?)" +
@@ -63,7 +65,6 @@ public class FullstateInfo
     private Player player;
     private HashMap<String, Vector2D> flagPositions = new HashMap<String, Vector2D>();
     private RobocupClient robocupClient;
-    private boolean calculatePosition;
 
     /**
      * Constructor.
@@ -210,7 +211,7 @@ public class FullstateInfo
 //        System.out.println("Parsing data: " + fullstateMsg);
         // Gather playMode information.
         boolean skipStuff = false;
-        noFlags = true;
+        //noFlags = true;
         seesBall = false;
         Pattern pattern = Pattern.compile(SERVER_PARAM_PATTERN);
         Matcher matcher = pattern.matcher(fullstateMsg);
@@ -259,6 +260,7 @@ public class FullstateInfo
         // See Type
         pattern = Pattern.compile(SEE_PATTERN);
         matcher = pattern.matcher(fullstateMsg);
+        System.out.println(fullstateMsg);
         if(matcher.find())
         {
             // So first we check to see if we know our own position
@@ -278,9 +280,10 @@ public class FullstateInfo
                 ArrayList<Flag> flags = new ArrayList<Flag>();
                 ArrayList<Double> distances = new ArrayList<Double>();
                 // We go through all the flags to calculate the average position
+                noFlags = true;
                 while(matcher.find()) {
                     if (matcher.find() && matcher.groupCount() == 4) {
-                        System.out.println("Matcher says this: " + matcher.group(0));
+                        //System.out.println("Matcher says this: " + matcher.group(0));
                         // We grab the flags data. group 0 is the entire flag data ((f t l 10) 10 32) and group 1
                         // is the flag id "f t l 10" group 2 is the distance 10 group 3 is the degrees
                         double distance = Double.parseDouble(matcher.group(2));
@@ -303,6 +306,7 @@ public class FullstateInfo
                         */
                     }
                 }
+
                 // If there are any flags in the area we'll go ahead an create the average x and y
                 if (!flags.isEmpty()) {
                     Vector2D playerVector = calculatePosition(flags, distances);
@@ -310,7 +314,18 @@ public class FullstateInfo
                     System.out.println("Actual Player Position: " + player.getPosition());
                     System.out.println("Player Body direction: " + player.getBodyDirection());
                     player.setPosition(playerVector);
+
+                    double playerAngle = calculateAngle(flags, player.getPosition());
+                    if(!Double.isNaN(playerAngle)) {
+                        player.setBodyDirection(playerAngle);
+                        System.out.println("SETTING ANGLE TO: " + playerAngle);
+                    }
+
                     noFlags = false;
+                }
+                else
+                {
+                    noFlags = true;
                 }
                 // Gather ball information.
                 pattern = Pattern.compile(BALL_PATTERN);
@@ -330,6 +345,20 @@ public class FullstateInfo
             else {
                 seesBall = true;
                 noFlags = false;
+            }
+        }
+
+        pattern = Pattern.compile(SENSE_BODY_PATTERN);
+        matcher = pattern.matcher(fullstateMsg);
+        if (matcher.find())
+        {
+            // So first we check to see if we know our own position
+            pattern = Pattern.compile("\\d+");
+            matcher = pattern.matcher(fullstateMsg);
+            if (matcher.find()) {
+//                System.out.println(fullstateMsg);
+                timeStep = Integer.parseInt(matcher.group(0));
+                System.out.println("Current timestep: " + timeStep);
             }
         }
 
@@ -554,15 +583,69 @@ public class FullstateInfo
         this.player = player;
     }
 
-    public boolean isCalculatePosition() {
-        return calculatePosition;
+    public double calculateAngle(List<Flag> flagList, Vector2D playerLoc)
+    {
+        if(flagList.size() > 0)
+        {
+            //figure out best flag to use
+            //best flag is based on shortest distance and smallest angle
+            //except we also want to avoid flags with distance of 0
+            //also avoid flags with y dist of 0 for sin
+            Flag bestFlag = flagList.get(0);
+            for(int i=1; i<flagList.size(); i++)
+            {
+                Flag curFlag = flagList.get(i);
+                if(bestFlag.distance == 0 || Math.abs(bestFlag.y-playerLoc.getY()) < 0.5)
+                {
+                    bestFlag = curFlag;
+                }
+                else if(curFlag.compareTo(bestFlag) > 0 && curFlag.distance != 0)
+                {
+                    bestFlag = curFlag;
+                }
+            }
+
+            if(bestFlag.distance != 0)
+            {
+                double calculatedDistance = Math.sqrt(Math.pow(((-1 * bestFlag.y) - (-1 * playerLoc.getY())),2)+Math.pow((bestFlag.x - playerLoc.getX()),2));
+                //calculate the angle
+                System.out.println("Calculating angle based on flag: " + bestFlag + " with player location: " + playerLoc);
+                double thetaInRads;
+                //if(Math.abs((-1*bestFlag.y)-(-1*playerLoc.getY())) > 1) {
+                    thetaInRads = Math.asin(((-1 * bestFlag.y) - (-1 * playerLoc.getY())) / calculatedDistance);
+                    if(bestFlag.x < playerLoc.getX())
+                    {
+                        thetaInRads = -1*thetaInRads + Math.PI;
+                    }
+                /*}
+                else
+                {
+                    thetaInRads =Math.acos((bestFlag.x - playerLoc.getX()) / calculatedDistance);
+                }*/
+
+                double thetaInDegs = thetaInRads*(180.0/Math.PI);
+
+                double myAngle = thetaInDegs+bestFlag.degree;
+
+                System.out.println("got theta=" + thetaInDegs + ", angle=" + myAngle);
+
+                while(myAngle > 180)
+                {
+                    myAngle -=360;
+                }
+                while(myAngle < -180)
+                {
+                    myAngle+=360;
+                }
+                return -1*myAngle;
+            }
+        }
+        System.out.println("UNABLE TO CALCULATE ANGLE DUE TO LACK OF FLAGS");
+        return Double.NaN;
     }
 
-    public void setCalculatePosition(boolean calculatePosition) {
-        this.calculatePosition = calculatePosition;
-    }
 
-    private class Flag {
+    private static class Flag implements Comparable<Flag>{
         String flagId;
         double distance;
         double degree;
@@ -577,6 +660,23 @@ public class FullstateInfo
             this.degree = degree;
             this.x = x;
             this.y = y;
+        }
+
+        public int compareTo(Flag otherFlag)
+        {
+            double distanceWeight = 1.0/80;
+            double angleWeight =    1.0/35;
+            Double myRating, theirRating; //higher is worse
+
+            myRating = this.distance*distanceWeight + Math.abs(this.degree)*angleWeight;
+            theirRating = otherFlag.distance*distanceWeight + Math.abs(otherFlag.degree)*angleWeight;
+
+            return -1*myRating.compareTo(theirRating);
+        }
+
+        public String toString()
+        {
+            return "[loc:<" + x + "," + y + ">, dist:" + distance + ", angle:" + degree+"]";
         }
     }
 }
