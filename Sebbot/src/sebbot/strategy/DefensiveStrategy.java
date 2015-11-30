@@ -18,7 +18,8 @@ import sebbot.PlayerAction;
  * @author Bret Black
  */
 public class DefensiveStrategy implements Strategy {
-	private int range = 10;
+	private int range = 10; // point at which defenders consider the ball (dist from center)
+	private int attackRange = 15; // the point at which the defenders swarm the ball (dist from player)
 	private int maxDistanceToEnd = 52;
 	private Vector2D startPos = new Vector2D(0, 0); // home place
 	private sebbot.ballcapture.Policy ballCaptureAlgorithm;
@@ -101,7 +102,10 @@ public class DefensiveStrategy implements Strategy {
             Player player){
 		boolean correctSide = ((player.getPosition().getX()>0==fsi.getBall().getPosition().getX()>0));
 		boolean inRange = Math.abs(fsi.getBall().getPosition().getX()) > range;
-    	return correctSide && inRange;
+		boolean attack = (int)player.distanceTo(fsi.getBall()) < attackRange;
+		
+		// consider all cases
+    	return (correctSide && inRange && closestToBall(rcClient,fsi,player)) || (attack && correctSide);
     	//startPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d, player.getPosition().getY());
     	/*if(player.isLeftSide()){
     		if(fsi.getBall().getPosition().getX()<0){
@@ -114,6 +118,27 @@ public class DefensiveStrategy implements Strategy {
     	}
     	
     	return false;*/
+    }
+    
+    public boolean closestToBall(RobocupClient rcClient, FullstateInfo fsi, Player p){
+    	Ball ball = fsi.getBall();
+		Player[] team = p.isLeftSide() ? fsi.getLeftTeam() : fsi.getRightTeam();
+
+		int numberOfPlayers = team.length;
+
+		// goal coords
+		Vector2D goalPos = new Vector2D(p.isLeftSide() ? 52.0d : -52.0d, 0);
+		/* Find which player in the team is the closest to the goal */
+		Player closestToTheBall = p;
+		for (int i = 0; i < numberOfPlayers; i++) {
+			if ((team[i] != p)
+					&& (team[i].distanceTo(ball.getPosition()) < closestToTheBall
+							.distanceTo(ball.getPosition()))) {
+				closestToTheBall = team[i];
+			}
+		}
+		
+		return (closestToTheBall.getPlayerNumber() == p.getPlayerNumber());
     }
 
 	/*
