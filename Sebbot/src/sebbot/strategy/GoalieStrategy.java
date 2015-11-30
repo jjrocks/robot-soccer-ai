@@ -16,6 +16,7 @@ import sebbot.PlayerAction;
 public class GoalieStrategy implements Strategy {
 	private int goalieRange = 15;
 	private int maxDistanceToGoal = 10;
+	private int goalWidth = 10; // the top border
 	private sebbot.ballcapture.Policy ballCaptureAlgorithm;
     
 
@@ -71,8 +72,20 @@ public class GoalieStrategy implements Strategy {
 			    new PlayerAction(action, rcClient));
 		}
 	} else {
-		// if ball is far from player, move to goal
-		CommonStrategies.simpleGoTo(goalPos, rcClient, fsi, player);
+		// if ball is far from player, pace goal
+		
+		// choose y value
+		double yVal = 0;
+		Vector2D ballPos = fsi.getBall().getPosition();
+		if(Math.abs(ballPos.getY()) < 10){
+			// go to ball's y
+			yVal = ballPos.getY();
+		} else {
+			// go the correct edge of the goal
+			yVal = ballPos.getY() > 0 ? goalWidth : -goalWidth;
+			
+		}
+		CommonStrategies.simpleGoTo(new Vector2D(goalPos.getX(),yVal), rcClient, fsi, player);
 	}
 
 	// yell out the player number
