@@ -26,13 +26,15 @@ public class CommonStrategies
     public static boolean shootToGoal(RobocupClient rcClient,
                                       FullstateInfo fsi, Player player)
     {
+    	int shootDistance = 30;
+    	
         if (player.distanceTo(fsi.getBall()) <= SoccerParams.KICKABLE_MARGIN)
         { // The ball is in the kickable margin => kick it towards the goal!
             double goalPosX = player.isLeftSide() ? 52.5d : -52.5d;
             
             // if goal is reachable, kick full strength
             double kickVelocity = 0;
-            if(player.distanceTo(new Vector2D(goalPosX,0))<30){
+            if(player.distanceTo(new Vector2D(goalPosX,0))<shootDistance){
             	kickVelocity = 100d;
             } else {
             	// else dribble

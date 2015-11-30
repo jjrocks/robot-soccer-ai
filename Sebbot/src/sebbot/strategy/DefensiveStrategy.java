@@ -18,7 +18,7 @@ import sebbot.PlayerAction;
  * @author Bret Black
  */
 public class DefensiveStrategy implements Strategy {
-	private int range = 30;
+	private int range = 10;
 	private int maxDistanceToEnd = 52;
 	private Vector2D startPos = new Vector2D(0, 0); // home place
 	private sebbot.ballcapture.Policy ballCaptureAlgorithm;
@@ -99,7 +99,9 @@ public class DefensiveStrategy implements Strategy {
      */
     public boolean checkX(RobocupClient rcClient,FullstateInfo fsi,
             Player player){
-    	return ((player.getPosition().getX()>0==fsi.getBall().getPosition().getX()>0));
+		boolean correctSide = ((player.getPosition().getX()>0==fsi.getBall().getPosition().getX()>0));
+		boolean inRange = Math.abs(fsi.getBall().getPosition().getX()) > range;
+    	return correctSide && inRange;
     	//startPos = new Vector2D(player.isLeftSide() ? -52.5d : 52.5d, player.getPosition().getY());
     	/*if(player.isLeftSide()){
     		if(fsi.getBall().getPosition().getX()<0){

@@ -236,14 +236,14 @@ public class Sebbot
         int offensiveCount = 3;
         int midfieldCount = 3;
         int defensiveCount = 3;
-        int[] yCoords = {-20,0,20};
+        int[] yCoords = {-10,0,10}; // can be multiplied by an int later
         
         // offensive loop
     	//GoToBallAndShoot qitGotoBall1 = new GoToBallAndShoot();
         for (int i = 0; i < offensiveCount; i++)
         {
         	OffensiveStrategy offensiveStrategy = new OffensiveStrategy();
-        	offensiveStrategy.setStartPos(new Vector2D(15.0,yCoords[i]));
+        	offensiveStrategy.setStartPos(new Vector2D(15.0,yCoords[i]*1.5));
             client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);
             client.init(offensiveStrategy);
 
@@ -258,7 +258,7 @@ public class Sebbot
         for (int i = 0; i < midfieldCount; i++)
         {
         	MidfieldStrategy midfieldStrategy = new MidfieldStrategy();
-        	midfieldStrategy.setStartPos(yCoords[i]);
+        	midfieldStrategy.setStartPos(yCoords[i]*2);
             client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);
             client.init(midfieldStrategy);
 
@@ -274,7 +274,7 @@ public class Sebbot
         for (int i = 0; i < defensiveCount; i++)
         {
         	DefensiveStrategy defensiveStrategy = new DefensiveStrategy();
-        	defensiveStrategy.setStartPos(new Vector2D(35.0, yCoords[i]));
+        	defensiveStrategy.setStartPos(new Vector2D(40.0, yCoords[i]));
             client = new RobocupClient(InetAddress.getByName(hostname), port, teamName);//,30.0, -30.0+15.0*i);
             client.init(defensiveStrategy);
 
