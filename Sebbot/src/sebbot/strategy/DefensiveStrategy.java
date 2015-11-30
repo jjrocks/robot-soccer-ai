@@ -2,15 +2,9 @@ package sebbot.strategy;
 
 import java.util.HashSet;
 
-import sebbot.Ball;
-import sebbot.FullstateInfo;
-import sebbot.Player;
-import sebbot.RobocupClient;
-import sebbot.SoccerParams;
-import sebbot.Vector2D;
+import sebbot.*;
 import sebbot.ballcapture.Action;
 import sebbot.ballcapture.State;
-import sebbot.PlayerAction;
 
 /**
  * Created by Bret Black 11/3/2015
@@ -87,7 +81,11 @@ public class DefensiveStrategy implements Strategy {
 					: Math.abs(startPos.getX()));
 
 			// go to position
-			CommonStrategies.simpleGoTo(startPos, rcClient, fsi, player);
+			if(CommonStrategies.simpleGoTo(startPos, rcClient, fsi, player, 4)) {
+				// Survey the land for a little bit.
+				PlayerAction playerAction = new PlayerAction(PlayerActionType.TURN, 0.0d, 25, rcClient);
+				rcClient.getBrain().getActionsQueue().addLast(playerAction);
+			}
 		}
 	}
 	

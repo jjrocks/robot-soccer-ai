@@ -31,8 +31,7 @@ public class FullstateInfo
     final static String SENSE_BODY_PATTERN = "\\(sense_body \\d+ \\(";
     final static String PLAYMODE_PATTERN  = "\\(pmode ([a-zA-Z_]*)\\)";
     final static String REAL_NB_PATTERN   = "((?:\\-)?[0-9]+(?:\\.[0-9]+(?:e(?:\\-)?[0-9]+)?)?)";
-    final static String BALL_PATTERN      = "\\(\\(b\\) (\\-?\\d{1,3}(?:\\.\\d)?) (\\-?\\d{1,3}(\\.\\d)?)" +
-            "(?: \\-?\\d{1,3}(?:\\.\\d)?)*\\)";
+    final static String BALL_PATTERN      = "\\(\\(b\\) (\\-?\\d{1,3}(?:\\.\\d)?) (\\-?\\d{1,3}(\\.\\d)?)(?: \\-?\\d{1,3}(?:\\.\\d)?)*\\)";
     final static String PLAYER_PATTERN    = "\\(\\(p ([lr]) ([0-9]{1,2}) ([g[0-9]+])\\) "
                                                   + REAL_NB_PATTERN
                                                   + " "
@@ -51,7 +50,7 @@ public class FullstateInfo
      * Members of the class.
      */
     public boolean noFlags = true;
-    public boolean seesBall = false;
+    public boolean seesBall = true;
     private int         timeStep;     // The time step of the game
     private String      playMode;     // The play mode of the game
     private String      fullstateMsg; // The fullstate msg received from server
@@ -212,7 +211,6 @@ public class FullstateInfo
         // Gather playMode information.
         boolean skipStuff = false;
         //noFlags = true;
-        seesBall = false;
         Pattern pattern = Pattern.compile(SERVER_PARAM_PATTERN);
         Matcher matcher = pattern.matcher(fullstateMsg);
         if(matcher.find() && !skipStuff)
@@ -260,7 +258,6 @@ public class FullstateInfo
         // See Type
         pattern = Pattern.compile(SEE_PATTERN);
         matcher = pattern.matcher(fullstateMsg);
-        System.out.println(fullstateMsg);
         if(matcher.find())
         {
             // So first we check to see if we know our own position
@@ -311,7 +308,7 @@ public class FullstateInfo
                 if (!flags.isEmpty()) {
                     Vector2D playerVector = calculatePosition(flags, distances);
                     System.out.println("Player Vector: " + playerVector.toString());
-                    System.out.println("Actual Player Position: " + player.getPosition());
+//                    System.out.println("Actual Player Position: " + player.getPosition());
                     System.out.println("Player Body direction: " + player.getBodyDirection());
                     player.setPosition(playerVector);
 
@@ -330,11 +327,15 @@ public class FullstateInfo
                 // Gather ball information.
                 pattern = Pattern.compile(BALL_PATTERN);
                 matcher = pattern.matcher(fullstateMsg);
+                seesBall = true;
                 if (matcher.find())
                 {
+                    System.out.println("Ball: " + matcher.group(0) + "Distance: " + matcher.group(1) + "Degrees: "
+                            + matcher.group(2));
                     double ballDistance = Double.parseDouble(matcher.group(1));
                     double ballDegrees = Double.parseDouble(matcher.group(2));
-                    Vector2D ballVector = new Vector2D(ballDistance, ballDegrees, true).add(player.getPosition());
+                    Vector2D ballVector = new Vector2D(ballDistance, ballDegrees+player.getBodyDirection(), true);
+                    ballVector = player.getPosition().add(ballVector);
                     ball.setPosition(ballVector);
                     System.out.println("Found the ball! " + ballVector.toString());
                     seesBall = true;
@@ -356,7 +357,6 @@ public class FullstateInfo
             pattern = Pattern.compile("\\d+");
             matcher = pattern.matcher(fullstateMsg);
             if (matcher.find()) {
-//                System.out.println(fullstateMsg);
                 timeStep = Integer.parseInt(matcher.group(0));
                 System.out.println("Current timestep: " + timeStep);
             }
@@ -426,7 +426,7 @@ public class FullstateInfo
     }
 
     public Vector2D calculateFlag(String position, double distance, double degrees) {
-        System.out.println("Flag: " + position + " Distance: " + distance + " Degrees: " + degrees);
+//        System.out.println("Flag: " + position + " Distance: " + distance + " Degrees: " + degrees);
         // THe data gets massivly unreliable the further they are away and the more to the perephrial they are.
         /*
         if ((distance == 0 && degrees == 0) || distance > 80 || degrees > 30 || degrees < -30) {
@@ -525,7 +525,7 @@ public class FullstateInfo
                 finalVector.getY() < 39) {
             return finalVector;
         }
-        System.out.println("Discarding based off the the calculation out of bounds: " + finalVector);
+//        System.out.println("Discarding based off the the calculation out of bounds: " + finalVector);
         return player.position;
     }
 
@@ -609,7 +609,7 @@ public class FullstateInfo
             {
                 double calculatedDistance = Math.sqrt(Math.pow(((-1 * bestFlag.y) - (-1 * playerLoc.getY())),2)+Math.pow((bestFlag.x - playerLoc.getX()),2));
                 //calculate the angle
-                System.out.println("Calculating angle based on flag: " + bestFlag + " with player location: " + playerLoc);
+//                System.out.println("Calculating angle based on flag: " + bestFlag + " with player location: " + playerLoc);
                 double thetaInRads;
                 //if(Math.abs((-1*bestFlag.y)-(-1*playerLoc.getY())) > 1) {
                     thetaInRads = Math.asin(((-1 * bestFlag.y) - (-1 * playerLoc.getY())) / calculatedDistance);
@@ -627,7 +627,7 @@ public class FullstateInfo
 
                 double myAngle = thetaInDegs+bestFlag.degree;
 
-                System.out.println("got theta=" + thetaInDegs + ", angle=" + myAngle);
+//                System.out.println("got theta=" + thetaInDegs + ", angle=" + myAngle);
 
                 while(myAngle > 180)
                 {
@@ -640,7 +640,7 @@ public class FullstateInfo
                 return -1*myAngle;
             }
         }
-        System.out.println("UNABLE TO CALCULATE ANGLE DUE TO LACK OF FLAGS");
+//        System.out.println("UNABLE TO CALCULATE ANGLE DUE TO LACK OF FLAGS");
         return Double.NaN;
     }
 

@@ -83,9 +83,16 @@ public class MidfieldStrategy implements Strategy
             rcClient.getBrain().getActionsQueue().addFirst(action);
             return;
         }
+        else {
+            // Get rid of any turns
+            rcClient.getBrain().getActionsQueue().clear();
+        }
         if (checkY(rcClient,fsi,player)) {
 			// if ball is close to player, move towards it and kick (code taken
 			// from GoToBallAndShoot)
+            if(CommonStrategies.simpleGoTo(fsi.getBall().getPosition(), rcClient, fsi, player)) {
+                CommonStrategies.shootToGoal(rcClient,fsi,player);
+            };
 			if (!CommonStrategies.simplePass(rcClient, fsi, player)) {
 				if (!CommonStrategies.shootToGoal(rcClient, fsi, player)) {
 					State state = new State(fsi, player);
@@ -97,7 +104,12 @@ public class MidfieldStrategy implements Strategy
 			}
 		} else {
 			// go to position
-			CommonStrategies.simpleGoTo(new Vector2D(fsi.getBall().getPosition().getX(),homeY), rcClient, fsi, player);
+            System.out.println("Going to home position");
+			if(CommonStrategies.simpleGoTo(new Vector2D(fsi.getBall().getPosition().getX(),homeY), rcClient, fsi, player, 5)){
+                // If they've arived to that place, just turn around a little
+                PlayerAction playerAction = new PlayerAction(PlayerActionType.TURN, 0.0d, 25, rcClient);
+                rcClient.getBrain().getActionsQueue().addLast(playerAction);
+            };
 		}
     }
     
@@ -109,7 +121,8 @@ public class MidfieldStrategy implements Strategy
      */
     public boolean checkY(RobocupClient rcClient, FullstateInfo fsi,
             Player player){
-    	if(fsi.getBall().distanceTo(new Vector2D(fsi.getBall().getPosition().getX(),homeY))<range){
+    	if(fsi.getBall().distanceTo(new Vector2D(player.getPosition().getX()/*fsi.getBall().getPosition().getX()*/
+                , homeY)) <range){
     		return true;
     	}
     	return false;

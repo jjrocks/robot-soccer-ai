@@ -81,16 +81,31 @@ public class OffensiveStrategy implements Strategy
         rcClient.getBrain().getActionsQueue().clear();
         if (!fsi.seesBall)
         {
+            System.out.println("Can't see ball! Turning");
             PlayerAction action = new PlayerAction(PlayerActionType.TURN, 0.0d, 10,rcClient);
             // If we can't see the ball clear all possible actions cause we first gotta find it.
 
             rcClient.getBrain().getActionsQueue().addFirst(action);
             return;
         }
+        else {
+            rcClient.getBrain().getActionsQueue().clear();
+        }
         if (checkY(rcClient,fsi,player)) {
 			// if ball is close to player, move towards it and kick (code taken
 			// from GoToBallAndShoot)
+            System.out.println("We're in the range to go for the ball");
+            if (CommonStrategies.simpleGoTo(fsi.getBall(), rcClient, fsi, player)) {
+                // If we fail to be right next to the ball move closer!
+                System.out.println("In range to kick the ball");
+                if(!CommonStrategies.shootToGoal(rcClient, fsi, player)) {
+                    System.out.println("Not actually in range to kick the ball");
+                    CommonStrategies.simpleGoTo(fsi.getBall().getPosition(), rcClient, fsi, player, 0);
+                }
+            }
+            /*
 			if (!CommonStrategies.simplePass(rcClient, fsi, player)) {
+                System.out.println("A player is close enough to the ball to shoot");
 				if (!CommonStrategies.shootToGoal(rcClient, fsi, player)) {
 					State state = new State(fsi, player);
 					Action action = ballCaptureAlgorithm.chooseAction(state);
@@ -98,7 +113,8 @@ public class OffensiveStrategy implements Strategy
 					rcClient.getBrain().getActionsQueue()
 							.addLast(new PlayerAction(action, rcClient));
 				}
-			}
+			}*/
+
 		} else {
 			// go to position
 			
@@ -107,13 +123,19 @@ public class OffensiveStrategy implements Strategy
 					: -Math.abs(startPos.getX()));
 						
 						
-			if(checkX(rcClient,fsi,player)){
+			if(checkX(rcClient, fsi, player)){
 				// go near goal
+                System.out.println("I am going to the goal");
 				Vector2D nearGoal = new Vector2D(startPos.getX()*2.1,startPos.getY()/2);
-				CommonStrategies.simpleGoTo(nearGoal, rcClient, fsi, player);
+				CommonStrategies.simpleGoTo(nearGoal, rcClient, fsi, player, 5);
 			} else {
 				// go home
-				CommonStrategies.simpleGoTo(startPos, rcClient, fsi, player);
+                System.out.println("I am going home");
+				if(CommonStrategies.simpleGoTo(startPos, rcClient, fsi, player, 5)) {
+                    // Survey the land
+                    PlayerAction playerAction = new PlayerAction(PlayerActionType.TURN, 0.0d, 25, rcClient);
+                    rcClient.getBrain().getActionsQueue().addLast(playerAction);
+                }
 			}
 		}
     }

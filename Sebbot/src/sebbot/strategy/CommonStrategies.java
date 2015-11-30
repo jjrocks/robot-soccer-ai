@@ -83,6 +83,33 @@ public class CommonStrategies
         }
     }
 
+    public static boolean simpleGoTo(Vector2D position, RobocupClient c,
+                                     FullstateInfo fsi, Player p, double margin) {
+        if (p.distanceTo(position) > margin)
+        { // We are too far away from the position.
+
+            if (Math.abs(p.angleFromBody(position)) < 36.0d)
+            { // The player is directed at the position.
+                PlayerAction action = new PlayerAction(PlayerActionType.DASH,
+                        100.0d, 0.0d, c);
+                c.getBrain().getActionsQueue().addLast(action);
+            }
+
+            else
+            { // The player needs to turn in the direction of the position.
+                PlayerAction action = new PlayerAction(PlayerActionType.TURN,
+                        0.0d, p.angleFromBody(position), c);
+                c.getBrain().getActionsQueue().addLast(action);
+            }
+
+            return false; // Order is not yet accomplished.
+        }
+        else
+        {
+            return true; // Order is accomplished.
+        }
+    }
+
     /**
      * @param position
      * @param c
@@ -93,29 +120,7 @@ public class CommonStrategies
     public static boolean simpleGoTo(Vector2D position, RobocupClient c,
                                      FullstateInfo fsi, Player p)
     {
-        if (p.distanceTo(position) > SoccerParams.KICKABLE_MARGIN)
-        { // We are too far away from the position.           
-
-            if (Math.abs(p.angleFromBody(position)) < 36.0d)
-            { // The player is directed at the position.
-                PlayerAction action = new PlayerAction(PlayerActionType.DASH,
-                    100.0d, 0.0d, c);
-                c.getBrain().getActionsQueue().addLast(action);
-            }
-
-            else
-            { // The player needs to turn in the direction of the position.
-                PlayerAction action = new PlayerAction(PlayerActionType.TURN,
-                    0.0d, p.angleFromBody(position), c);
-                c.getBrain().getActionsQueue().addLast(action);
-            }
-
-            return false; // Order is not yet accomplished.
-        }
-        else
-        {
-            return true; // Order is accomplished.
-        }
+        return simpleGoTo(position, c, fsi, p, SoccerParams.KICKABLE_MARGIN);
     }
 
     /**

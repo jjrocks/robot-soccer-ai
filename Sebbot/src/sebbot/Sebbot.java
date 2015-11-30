@@ -289,6 +289,7 @@ public class Sebbot
         }
         
         // goalie
+
         GoalieStrategy goalieStrategy = new GoalieStrategy();
         client = new RobocupClient(InetAddress.getByName(hostname), port,
                 teamName);
@@ -299,6 +300,7 @@ public class Sebbot
 
         new Thread(client).start();
         new Thread(brain).start();
+
     	
     }
 }

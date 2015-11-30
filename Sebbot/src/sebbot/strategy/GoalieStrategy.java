@@ -93,7 +93,7 @@ public class GoalieStrategy implements Strategy {
 		}
 		System.out.println("GOALIE GOING TO POS " + goalPos.getX() + ", " + yVal);
 		if(player.distanceTo(new Vector2D(goalPos.getX(),yVal)) > 3) {
-			CommonStrategies.simpleGoTo(new Vector2D(goalPos.getX(), yVal), rcClient, fsi, player);
+			CommonStrategies.simpleGoTo(new Vector2D(goalPos.getX(), yVal), rcClient, fsi, player, 3);
 		}
 	}
     }
